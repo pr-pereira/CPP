@@ -3,7 +3,8 @@
 <nta>
 	<declaration>// Place global declarations here.
 clock y, z;
-chan arrived, majorRedOn, minorRedOn, enableSensor;
+chan arrived, majorRedOn, minorRedOn;
+urgent chan enableSensor;
 
 chan majorLow, majorHigh, majorNo, minorLow, minorHigh, minorNo;</declaration>
 	<template>
