@@ -3,11 +3,14 @@
 <nta>
 	<declaration>// Place global declarations here.
 clock y, z;
-chan arrived, majorRedOn, minorRedOn, minorRed;</declaration>
+chan arrived, majorRedOn, minorRedOn, enableSensor;
+
+chan majorLow, majorHigh, majorNo, minorLow, minorHigh, minorNo;</declaration>
 	<template>
 		<name x="5" y="5">Sensor</name>
 		<declaration>// Place local declarations here.</declaration>
 		<location id="id0" x="-110" y="-76">
+			<name x="-187" y="-85">Enabled</name>
 		</location>
 		<location id="id1" x="42" y="-76">
 			<name x="59" y="-85">Disabled</name>
@@ -16,7 +19,7 @@ chan arrived, majorRedOn, minorRedOn, minorRed;</declaration>
 		<transition>
 			<source ref="id1"/>
 			<target ref="id0"/>
-			<label kind="synchronisation" x="-68" y="-17">minorRed?</label>
+			<label kind="synchronisation" x="-68" y="-17">enableSensor?</label>
 			<nail x="-34" y="-17"/>
 		</transition>
 		<transition>
@@ -173,7 +176,7 @@ chan arrived, majorRedOn, minorRedOn, minorRed;</declaration>
 		<transition>
 			<source ref="id12"/>
 			<target ref="id16"/>
-			<label kind="synchronisation" x="-238" y="-195">minorRed!</label>
+			<label kind="synchronisation" x="-238" y="-195">enableSensor!</label>
 		</transition>
 		<transition>
 			<source ref="id10"/>
@@ -184,8 +187,8 @@ chan arrived, majorRedOn, minorRedOn, minorRed;</declaration>
 		<transition>
 			<source ref="id16"/>
 			<target ref="id10"/>
-			<label kind="synchronisation" x="-187" y="-153">majorRedOn?</label>
-			<label kind="assignment" x="-178" y="-136">z := 0</label>
+			<label kind="synchronisation" x="-161" y="-127">majorRedOn?</label>
+			<label kind="assignment" x="-153" y="-110">z := 0</label>
 		</transition>
 		<transition>
 			<source ref="id13"/>
