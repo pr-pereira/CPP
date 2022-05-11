@@ -30,118 +30,64 @@ chan majorLow, majorHigh, majorNo, minorLow, minorHigh, minorNo;</declaration>
 		</transition>
 	</template>
 	<template>
-		<name>SensorMinorRoad</name>
-		<location id="id2" x="-255" y="-306">
-		</location>
-		<init ref="id2"/>
-		<transition>
-			<source ref="id2"/>
-			<target ref="id2"/>
-			<label kind="synchronisation" x="-306" y="-255">minorNo!</label>
-			<nail x="-306" y="-281"/>
-			<nail x="-255" y="-247"/>
-		</transition>
-		<transition>
-			<source ref="id2"/>
-			<target ref="id2"/>
-			<label kind="synchronisation" x="-298" y="-374">minorLow!</label>
-			<nail x="-247" y="-366"/>
-			<nail x="-306" y="-340"/>
-		</transition>
-		<transition>
-			<source ref="id2"/>
-			<target ref="id2"/>
-			<label kind="synchronisation" x="-196" y="-306">minorHigh!</label>
-			<nail x="-204" y="-272"/>
-			<nail x="-204" y="-332"/>
-		</transition>
-	</template>
-	<template>
-		<name>SensorMajorRoad</name>
-		<location id="id3" x="-110" y="-76">
-		</location>
-		<init ref="id3"/>
-		<transition>
-			<source ref="id3"/>
-			<target ref="id3"/>
-			<label kind="synchronisation" x="-161" y="-25">majorNo!</label>
-			<nail x="-161" y="-51"/>
-			<nail x="-110" y="-17"/>
-		</transition>
-		<transition>
-			<source ref="id3"/>
-			<target ref="id3"/>
-			<label kind="synchronisation" x="-153" y="-144">majorLow!</label>
-			<nail x="-102" y="-136"/>
-			<nail x="-161" y="-110"/>
-		</transition>
-		<transition>
-			<source ref="id3"/>
-			<target ref="id3"/>
-			<label kind="synchronisation" x="-51" y="-76">majorHigh!</label>
-			<nail x="-59" y="-42"/>
-			<nail x="-59" y="-102"/>
-		</transition>
-	</template>
-	<template>
 		<name>MajorTrafficLights</name>
-		<location id="id4" x="-476" y="-382" color="#ff0000">
+		<location id="id2" x="-476" y="-382" color="#ff0000">
 			<name x="-484" y="-416">Red</name>
 		</location>
-		<location id="id5" x="-476" y="-212" color="#ffff00">
+		<location id="id3" x="-476" y="-212" color="#ffff00">
 			<name x="-459" y="-221">Yellow</name>
 			<label kind="invariant" x="-459" y="-204">y &lt;= 5</label>
 		</location>
-		<location id="id6" x="-476" y="-42" color="#00ff00">
+		<location id="id4" x="-476" y="-42" color="#00ff00">
 			<name x="-484" y="-25">Green</name>
 		</location>
-		<location id="id7" x="-654" y="-136">
+		<location id="id5" x="-654" y="-136">
 			<name x="-739" y="-144">GreenOff</name>
 			<label kind="invariant" x="-722" y="-127">y &lt;= 1</label>
 		</location>
-		<location id="id8" x="-654" y="-314">
+		<location id="id6" x="-654" y="-314">
 			<name x="-739" y="-323">YellowOff</name>
 			<label kind="invariant" x="-722" y="-306">y &lt;= 1</label>
 		</location>
-		<location id="id9" x="-306" y="-212">
+		<location id="id7" x="-306" y="-212">
 			<name x="-289" y="-221">RedOff</name>
 			<label kind="invariant" x="-289" y="-204">y &lt;= 1</label>
 		</location>
-		<init ref="id6"/>
+		<init ref="id4"/>
 		<transition>
-			<source ref="id9"/>
-			<target ref="id6"/>
+			<source ref="id7"/>
+			<target ref="id4"/>
 			<label kind="guard" x="-382" y="-127">y &gt;= 1</label>
 			<label kind="assignment" x="-382" y="-110">y := 0</label>
 		</transition>
 		<transition>
-			<source ref="id4"/>
-			<target ref="id9"/>
+			<source ref="id2"/>
+			<target ref="id7"/>
 			<label kind="synchronisation" x="-399" y="-331">minorRedOn?</label>
 			<label kind="assignment" x="-382" y="-314">y := 0</label>
 		</transition>
 		<transition>
-			<source ref="id8"/>
-			<target ref="id4"/>
+			<source ref="id6"/>
+			<target ref="id2"/>
 			<label kind="guard" x="-612" y="-399">y &gt;= 1</label>
 			<label kind="synchronisation" x="-637" y="-382">majorRedOn!</label>
 			<label kind="assignment" x="-612" y="-365">y := 0</label>
 		</transition>
 		<transition>
-			<source ref="id5"/>
-			<target ref="id8"/>
+			<source ref="id3"/>
+			<target ref="id6"/>
 			<label kind="guard" x="-569" y="-306">y &gt;= 5</label>
 			<label kind="assignment" x="-569" y="-289">y := 0</label>
 		</transition>
 		<transition>
-			<source ref="id7"/>
-			<target ref="id5"/>
+			<source ref="id5"/>
+			<target ref="id3"/>
 			<label kind="guard" x="-612" y="-212">y &gt;= 1</label>
 			<label kind="assignment" x="-612" y="-195">y := 0</label>
 		</transition>
 		<transition>
-			<source ref="id6"/>
-			<target ref="id7"/>
+			<source ref="id4"/>
+			<target ref="id5"/>
 			<label kind="guard" x="-620" y="-85">y &gt;= 30</label>
 			<label kind="synchronisation" x="-620" y="-68">arrived?</label>
 			<label kind="assignment" x="-620" y="-51">y := 0</label>
@@ -149,70 +95,70 @@ chan majorLow, majorHigh, majorNo, minorLow, minorHigh, minorNo;</declaration>
 	</template>
 	<template>
 		<name>MinorTrafficLights</name>
-		<location id="id10" x="-102" y="-34">
+		<location id="id8" x="-102" y="-34">
 			<name x="-85" y="-42">RedOff</name>
 			<label kind="invariant" x="-85" y="-25">z &lt;= 1</label>
 		</location>
-		<location id="id11" x="-272" y="136" color="#00ff00">
+		<location id="id9" x="-272" y="136" color="#00ff00">
 			<name x="-280" y="153">Green</name>
 		</location>
-		<location id="id12" x="-272" y="-204" color="#ff0000">
+		<location id="id10" x="-272" y="-204" color="#ff0000">
 			<name x="-280" y="-238">Red</name>
 		</location>
-		<location id="id13" x="-450" y="-136">
+		<location id="id11" x="-450" y="-136">
 			<name x="-535" y="-144">YellowOff</name>
 			<label kind="invariant" x="-518" y="-127">z &lt;= 1</label>
 		</location>
-		<location id="id14" x="-272" y="-34" color="#ffff00">
+		<location id="id12" x="-272" y="-34" color="#ffff00">
 			<name x="-255" y="-43">Yellow</name>
 			<label kind="invariant" x="-255" y="-25">z &lt;= 5</label>
 		</location>
-		<location id="id15" x="-450" y="42">
+		<location id="id13" x="-450" y="42">
 			<name x="-535" y="34">GreenOff</name>
 			<label kind="invariant" x="-518" y="51">z &lt;= 1</label>
 		</location>
-		<location id="id16" x="-212" y="-144">
+		<location id="id14" x="-212" y="-144">
 		</location>
-		<init ref="id12"/>
+		<init ref="id10"/>
 		<transition>
-			<source ref="id12"/>
-			<target ref="id16"/>
+			<source ref="id10"/>
+			<target ref="id14"/>
 			<label kind="synchronisation" x="-238" y="-195">enableSensor!</label>
 		</transition>
 		<transition>
-			<source ref="id10"/>
-			<target ref="id11"/>
+			<source ref="id8"/>
+			<target ref="id9"/>
 			<label kind="guard" x="-178" y="51">z &gt;= 1</label>
 			<label kind="assignment" x="-178" y="68">z := 0</label>
 		</transition>
 		<transition>
-			<source ref="id16"/>
-			<target ref="id10"/>
+			<source ref="id14"/>
+			<target ref="id8"/>
 			<label kind="synchronisation" x="-161" y="-127">majorRedOn?</label>
 			<label kind="assignment" x="-153" y="-110">z := 0</label>
 		</transition>
 		<transition>
-			<source ref="id13"/>
-			<target ref="id12"/>
+			<source ref="id11"/>
+			<target ref="id10"/>
 			<label kind="guard" x="-416" y="-221">z &gt;= 1</label>
 			<label kind="synchronisation" x="-442" y="-204">minorRedOn!</label>
 			<label kind="assignment" x="-416" y="-187">z := 0</label>
 		</transition>
 		<transition>
-			<source ref="id14"/>
-			<target ref="id13"/>
+			<source ref="id12"/>
+			<target ref="id11"/>
 			<label kind="guard" x="-365" y="-127">z &gt;= 5</label>
 			<label kind="assignment" x="-365" y="-110">z := 0</label>
 		</transition>
 		<transition>
-			<source ref="id15"/>
-			<target ref="id14"/>
+			<source ref="id13"/>
+			<target ref="id12"/>
 			<label kind="guard" x="-416" y="-34">z &gt;= 1</label>
 			<label kind="assignment" x="-416" y="-17">z := 0</label>
 		</transition>
 		<transition>
-			<source ref="id11"/>
-			<target ref="id15"/>
+			<source ref="id9"/>
+			<target ref="id13"/>
 			<label kind="guard" x="-408" y="102">z &gt;= 30</label>
 			<label kind="assignment" x="-408" y="119">z := 0</label>
 		</transition>
