@@ -117,7 +117,8 @@ chan majorLow, majorHigh, majorNo, minorLow, minorHigh, minorNo;</declaration>
 			<name x="-535" y="34">GreenOff</name>
 			<label kind="invariant" x="-518" y="51">z &lt;= 1</label>
 		</location>
-		<location id="id14" x="-212" y="-144">
+		<location id="id14" x="-212" y="-144" color="#ff0000">
+			<name x="-195" y="-161">RedWithSensorEnabled</name>
 		</location>
 		<init ref="id10"/>
 		<transition>
@@ -188,7 +189,11 @@ system Sensor, MajorTrafficLights, MinorTrafficLights;</system>
 			<comment></comment>
 		</query>
 		<query>
-			<formula></formula>
+			<formula>A[] MajorTrafficLights.Yellow imply MinorTrafficLights.Red or MinorTrafficLights.RedWithSensorEnabled</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>MinorTrafficLights.Green --&gt; MinorTrafficLights.Red</formula>
 			<comment></comment>
 		</query>
 	</queries>
