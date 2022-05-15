@@ -3,7 +3,8 @@
 <nta>
 	<declaration>// Place global declarations here.
 clock y, z;
-chan arrived, majorRedOn, minorRedOn;
+chan arrived;
+chan majorRedOn, minorRedOn;
 urgent chan enableSensor;
 
 chan majorLow, majorHigh, majorNo, minorLow, minorHigh, minorNo;</declaration>
@@ -20,13 +21,13 @@ chan majorLow, majorHigh, majorNo, minorLow, minorHigh, minorNo;</declaration>
 		<transition>
 			<source ref="id1"/>
 			<target ref="id0"/>
-			<label kind="synchronisation" x="-68" y="-17">enableSensor?</label>
-			<nail x="-34" y="-17"/>
+			<label kind="synchronisation" x="-85" y="-17">enableSensor?</label>
+			<nail x="-34" y="-25"/>
 		</transition>
 		<transition>
 			<source ref="id0"/>
 			<target ref="id1"/>
-			<label kind="synchronisation" x="-59" y="-93">arrived!</label>
+			<label kind="synchronisation" x="-59" y="-102">arrived!</label>
 		</transition>
 	</template>
 	<template>
@@ -102,8 +103,8 @@ chan majorLow, majorHigh, majorNo, minorLow, minorHigh, minorNo;</declaration>
 		<location id="id9" x="-272" y="136" color="#00ff00">
 			<name x="-280" y="153">Green</name>
 		</location>
-		<location id="id10" x="-272" y="-204" color="#ff0000">
-			<name x="-280" y="-238">Red</name>
+		<location id="id10" x="-272" y="-212" color="#ff0000">
+			<name x="-280" y="-246">RedWithSensorDisabled</name>
 		</location>
 		<location id="id11" x="-450" y="-136">
 			<name x="-535" y="-144">YellowOff</name>
@@ -117,14 +118,14 @@ chan majorLow, majorHigh, majorNo, minorLow, minorHigh, minorNo;</declaration>
 			<name x="-535" y="34">GreenOff</name>
 			<label kind="invariant" x="-518" y="51">z &lt;= 1</label>
 		</location>
-		<location id="id14" x="-212" y="-144" color="#ff0000">
-			<name x="-195" y="-161">RedWithSensorEnabled</name>
+		<location id="id14" x="-272" y="-161" color="#ff0000">
+			<name x="-255" y="-170">RedWithSensorEnabled</name>
 		</location>
-		<init ref="id10"/>
+		<init ref="id14"/>
 		<transition>
 			<source ref="id10"/>
 			<target ref="id14"/>
-			<label kind="synchronisation" x="-238" y="-195">enableSensor!</label>
+			<label kind="synchronisation" x="-263" y="-195">enableSensor!</label>
 		</transition>
 		<transition>
 			<source ref="id8"/>
@@ -141,9 +142,9 @@ chan majorLow, majorHigh, majorNo, minorLow, minorHigh, minorNo;</declaration>
 		<transition>
 			<source ref="id11"/>
 			<target ref="id10"/>
-			<label kind="guard" x="-416" y="-221">z &gt;= 1</label>
-			<label kind="synchronisation" x="-442" y="-204">minorRedOn!</label>
-			<label kind="assignment" x="-416" y="-187">z := 0</label>
+			<label kind="guard" x="-416" y="-229">z &gt;= 1</label>
+			<label kind="synchronisation" x="-442" y="-212">minorRedOn!</label>
+			<label kind="assignment" x="-416" y="-195">z := 0</label>
 		</transition>
 		<transition>
 			<source ref="id12"/>
@@ -185,15 +186,15 @@ system Sensor, MajorTrafficLights, MinorTrafficLights;</system>
 			<comment></comment>
 		</query>
 		<query>
-			<formula>Sensor.Disabled --&gt; MinorTrafficLights.Green</formula>
+			<formula>MajorTrafficLights.GreenOff --&gt; MinorTrafficLights.Green</formula>
 			<comment></comment>
 		</query>
 		<query>
-			<formula>A[] MajorTrafficLights.Yellow imply MinorTrafficLights.Red or MinorTrafficLights.RedWithSensorEnabled</formula>
+			<formula>A[] MajorTrafficLights.Yellow imply MinorTrafficLights.RedWithSensorDisabled or MinorTrafficLights.RedWithSensorEnabled</formula>
 			<comment></comment>
 		</query>
 		<query>
-			<formula>MinorTrafficLights.Green --&gt; MinorTrafficLights.Red</formula>
+			<formula>E[] MinorTrafficLights.Green imply not MinorTrafficLights.RedWithSensorDisabled</formula>
 			<comment></comment>
 		</query>
 	</queries>

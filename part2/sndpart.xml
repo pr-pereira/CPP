@@ -3,49 +3,49 @@
 <nta>
 	<declaration>// Place global declarations here.
 clock y, z;
-chan arrived, majorRedOn, minorRedOn, minorRed, majorRed, minorHigh, minorLow, minorNo, majorHigh, majorLow, majorNo;
+chan arrived, majorRedOn, minorRedOn, enableMinorSensor, enableMajorSensor, minorHigh, minorLow, minorNo, majorHigh, majorLow, majorNo;
 int lightChange := 0;</declaration>
 	<template>
 		<name>SensorMinorRoad</name>
 		<location id="id0" x="-255" y="-306">
-			<name x="-238" y="-323">Enabled</name>
+			<name x="-238" y="-314">Enabled</name>
 		</location>
-		<location id="id1" x="-204" y="-416">
-			<name x="-195" y="-450">HighTrafficDisabled</name>
+		<location id="id1" x="-204" y="-433">
+			<name x="-195" y="-467">HighTraffic</name>
 		</location>
-		<location id="id2" x="-374" y="-306">
-			<name x="-535" y="-314">LowTrafficDisabled</name>
+		<location id="id2" x="-467" y="-306">
+			<name x="-560" y="-314">LowTraffic</name>
 		</location>
-		<location id="id3" x="-178" y="-229">
-			<name x="-152" y="-237">NoTrafficEnabled</name>
+		<location id="id3" x="-204" y="-178">
+			<name x="-179" y="-187">NoTraffic</name>
 		</location>
 		<init ref="id0"/>
 		<transition>
 			<source ref="id1"/>
 			<target ref="id0"/>
-			<label kind="synchronisation" x="-331" y="-382">minorRed?</label>
+			<label kind="synchronisation" x="-391" y="-382">enableMinorSensor?</label>
 			<nail x="-246" y="-374"/>
 		</transition>
 		<transition>
 			<source ref="id3"/>
 			<target ref="id0"/>
-			<nail x="-204" y="-280"/>
+			<nail x="-212" y="-246"/>
 		</transition>
 		<transition>
 			<source ref="id2"/>
 			<target ref="id0"/>
-			<label kind="synchronisation" x="-348" y="-289">minorRed?</label>
-			<nail x="-314" y="-289"/>
+			<label kind="synchronisation" x="-416" y="-289">enableMinorSensor?</label>
+			<nail x="-357" y="-289"/>
 		</transition>
 		<transition>
 			<source ref="id0"/>
 			<target ref="id3"/>
-			<label kind="synchronisation" x="-280" y="-263">minorNo!</label>
+			<label kind="synchronisation" x="-297" y="-238">minorNo!</label>
 		</transition>
 		<transition>
 			<source ref="id0"/>
 			<target ref="id2"/>
-			<label kind="synchronisation" x="-348" y="-331">minorLow!</label>
+			<label kind="synchronisation" x="-391" y="-331">minorLow!</label>
 		</transition>
 		<transition>
 			<source ref="id0"/>
@@ -55,56 +55,56 @@ int lightChange := 0;</declaration>
 	</template>
 	<template>
 		<name>SensorMajorRoad</name>
-		<location id="id4" x="-221" y="-416">
-			<name x="-255" y="-450">HighTrafficDisabled</name>
+		<location id="id4" x="-204" y="-433">
+			<name x="-238" y="-467">HighTraffic</name>
 		</location>
 		<location id="id5" x="-255" y="-306">
-			<name x="-238" y="-323">Enabled</name>
+			<name x="-238" y="-314">Enabled</name>
 		</location>
-		<location id="id6" x="-178" y="-229">
-			<name x="-152" y="-237">NoTrafficEnabled</name>
+		<location id="id6" x="-204" y="-178">
+			<name x="-178" y="-186">NoTraffic</name>
 		</location>
-		<location id="id7" x="-374" y="-306">
-			<name x="-518" y="-314">LowTrafficDisabled</name>
+		<location id="id7" x="-467" y="-306">
+			<name x="-569" y="-314">LowTraffic</name>
 		</location>
 		<init ref="id5"/>
 		<transition>
 			<source ref="id4"/>
 			<target ref="id5"/>
-			<label kind="synchronisation" x="-331" y="-382">majorRed?</label>
-			<nail x="-255" y="-365"/>
+			<label kind="synchronisation" x="-391" y="-382">enableMajorSensor?</label>
+			<nail x="-246" y="-374"/>
 		</transition>
 		<transition>
 			<source ref="id6"/>
 			<target ref="id5"/>
-			<nail x="-204" y="-280"/>
+			<nail x="-212" y="-246"/>
 		</transition>
 		<transition>
 			<source ref="id7"/>
 			<target ref="id5"/>
-			<label kind="synchronisation" x="-348" y="-289">majorRed?</label>
-			<nail x="-314" y="-289"/>
+			<label kind="synchronisation" x="-425" y="-289">enableMajorSensor?</label>
+			<nail x="-357" y="-289"/>
 		</transition>
 		<transition>
 			<source ref="id5"/>
 			<target ref="id6"/>
-			<label kind="synchronisation" x="-280" y="-263">majorNo!</label>
+			<label kind="synchronisation" x="-306" y="-246">majorNo!</label>
 		</transition>
 		<transition>
 			<source ref="id5"/>
 			<target ref="id7"/>
-			<label kind="synchronisation" x="-348" y="-331">majorLow!</label>
+			<label kind="synchronisation" x="-391" y="-331">majorLow!</label>
 		</transition>
 		<transition>
 			<source ref="id5"/>
 			<target ref="id4"/>
-			<label kind="synchronisation" x="-238" y="-357">majorHigh!</label>
+			<label kind="synchronisation" x="-221" y="-365">majorHigh!</label>
 		</transition>
 	</template>
 	<template>
 		<name>MajorTrafficLights</name>
-		<location id="id8" x="-476" y="-382" color="#ff0000">
-			<name x="-484" y="-416">Red</name>
+		<location id="id8" x="-476" y="-416" color="#ff0000">
+			<name x="-484" y="-450">RedWithSensorDisabled</name>
 		</location>
 		<location id="id9" x="-476" y="-212" color="#ffff00">
 			<name x="-459" y="-221">Yellow</name>
@@ -113,9 +113,9 @@ int lightChange := 0;</declaration>
 		<location id="id10" x="-476" y="-25" color="#00ff00">
 			<name x="-450" y="-34">Green</name>
 		</location>
-		<location id="id11" x="-748" y="-127">
-			<name x="-833" y="-135">GreenOff</name>
-			<label kind="invariant" x="-816" y="-118">y &lt;= 1</label>
+		<location id="id11" x="-654" y="-127">
+			<name x="-739" y="-135">GreenOff</name>
+			<label kind="invariant" x="-722" y="-118">y &lt;= 1</label>
 		</location>
 		<location id="id12" x="-654" y="-314">
 			<name x="-739" y="-323">YellowOff</name>
@@ -125,31 +125,31 @@ int lightChange := 0;</declaration>
 			<name x="-289" y="-221">RedOff</name>
 			<label kind="invariant" x="-289" y="-204">y &lt;= 1</label>
 		</location>
-		<location id="id14" x="-408" y="-314" color="#ff0000">
-			<name x="-391" y="-331">RedWithSensorEnabled</name>
+		<location id="id14" x="-476" y="-357" color="#ff0000">
+			<name x="-459" y="-374">RedWithSensorEnabled</name>
 		</location>
 		<init ref="id10"/>
 		<transition>
 			<source ref="id10"/>
 			<target ref="id11"/>
-			<label kind="guard" x="-569" y="-144">y &gt;= 60</label>
+			<label kind="guard" x="-561" y="-144">y &gt;= 60</label>
 			<label kind="synchronisation" x="-569" y="-127">minorLow?</label>
-			<label kind="assignment" x="-569" y="-110">y := 0</label>
+			<label kind="assignment" x="-561" y="-110">y := 0</label>
 			<nail x="-476" y="-127"/>
 		</transition>
 		<transition>
 			<source ref="id10"/>
 			<target ref="id11"/>
-			<label kind="guard" x="-731" y="-42">y &gt;= 30</label>
-			<label kind="synchronisation" x="-731" y="-25">minorHigh?</label>
-			<label kind="assignment" x="-731" y="-8">y := 0</label>
-			<nail x="-748" y="-25"/>
-			<nail x="-748" y="-102"/>
+			<label kind="guard" x="-646" y="-51">y &gt;= 30</label>
+			<label kind="synchronisation" x="-654" y="-25">minorHigh?</label>
+			<label kind="assignment" x="-646" y="-8">y := 0</label>
+			<nail x="-654" y="-25"/>
+			<nail x="-654" y="-102"/>
 		</transition>
 		<transition>
 			<source ref="id8"/>
 			<target ref="id14"/>
-			<label kind="synchronisation" x="-442" y="-365">majorRed!</label>
+			<label kind="synchronisation" x="-467" y="-399">enableMajorSensor!</label>
 		</transition>
 		<transition>
 			<source ref="id13"/>
@@ -166,9 +166,9 @@ int lightChange := 0;</declaration>
 		<transition>
 			<source ref="id12"/>
 			<target ref="id8"/>
-			<label kind="guard" x="-612" y="-399">y &gt;= 1</label>
-			<label kind="synchronisation" x="-637" y="-382">majorRedOn!</label>
-			<label kind="assignment" x="-612" y="-365">y := 0</label>
+			<label kind="guard" x="-620" y="-416">y &gt;= 1</label>
+			<label kind="synchronisation" x="-645" y="-399">majorRedOn!</label>
+			<label kind="assignment" x="-620" y="-382">y := 0</label>
 		</transition>
 		<transition>
 			<source ref="id9"/>
@@ -189,11 +189,11 @@ int lightChange := 0;</declaration>
 			<name x="-85" y="-42">RedOff</name>
 			<label kind="invariant" x="-85" y="-25">z &lt;= 1</label>
 		</location>
-		<location id="id16" x="-255" y="136" color="#00ff00">
-			<name x="-238" y="127">Green</name>
+		<location id="id16" x="-272" y="136" color="#00ff00">
+			<name x="-255" y="127">Green</name>
 		</location>
-		<location id="id17" x="-272" y="-204" color="#ff0000">
-			<name x="-280" y="-238">Red</name>
+		<location id="id17" x="-272" y="-221" color="#ff0000">
+			<name x="-280" y="-255">RedWithSensorDisabled</name>
 		</location>
 		<location id="id18" x="-450" y="-136">
 			<name x="-535" y="-144">YellowOff</name>
@@ -203,36 +203,36 @@ int lightChange := 0;</declaration>
 			<name x="-255" y="-43">Yellow</name>
 			<label kind="invariant" x="-255" y="-25">z &lt;= 5</label>
 		</location>
-		<location id="id20" x="-527" y="42">
-			<name x="-612" y="34">GreenOff</name>
-			<label kind="invariant" x="-595" y="51">z &lt;= 1</label>
+		<location id="id20" x="-450" y="42">
+			<name x="-535" y="34">GreenOff</name>
+			<label kind="invariant" x="-518" y="51">z &lt;= 1</label>
 		</location>
-		<location id="id21" x="-212" y="-144" color="#ff0000">
-			<name x="-195" y="-161">RedWithSensorEnabled</name>
+		<location id="id21" x="-272" y="-161" color="#ff0000">
+			<name x="-255" y="-178">RedWithSensorEnabled</name>
 		</location>
 		<init ref="id17"/>
 		<transition>
 			<source ref="id16"/>
 			<target ref="id20"/>
-			<label kind="guard" x="-331" y="25">z &gt;= 60</label>
-			<label kind="synchronisation" x="-331" y="42">majorLow?</label>
-			<label kind="assignment" x="-331" y="59">z := 0</label>
-			<nail x="-255" y="42"/>
+			<label kind="guard" x="-357" y="25">z &gt;= 60</label>
+			<label kind="synchronisation" x="-365" y="42">majorLow?</label>
+			<label kind="assignment" x="-357" y="59">z := 0</label>
+			<nail x="-272" y="42"/>
 		</transition>
 		<transition>
 			<source ref="id16"/>
 			<target ref="id20"/>
-			<label kind="guard" x="-510" y="119">z &gt;= 30</label>
-			<label kind="synchronisation" x="-510" y="136">majorHigh?</label>
-			<label kind="assignment" x="-510" y="153">z := 0,
+			<label kind="guard" x="-433" y="119">z &gt;= 30</label>
+			<label kind="synchronisation" x="-442" y="136">majorHigh?</label>
+			<label kind="assignment" x="-433" y="153">z := 0,
 lightChange := lightChange + 1</label>
-			<nail x="-527" y="136"/>
-			<nail x="-527" y="68"/>
+			<nail x="-450" y="136"/>
+			<nail x="-450" y="76"/>
 		</transition>
 		<transition>
 			<source ref="id17"/>
 			<target ref="id21"/>
-			<label kind="synchronisation" x="-238" y="-204">minorRed!</label>
+			<label kind="synchronisation" x="-263" y="-204">enableMinorSensor!</label>
 		</transition>
 		<transition>
 			<source ref="id15"/>
@@ -243,8 +243,8 @@ lightChange := lightChange + 1</label>
 		<transition>
 			<source ref="id21"/>
 			<target ref="id15"/>
-			<label kind="synchronisation" x="-161" y="-127">majorRedOn?</label>
-			<label kind="assignment" x="-152" y="-110">z := 0,
+			<label kind="synchronisation" x="-161" y="-136">majorRedOn?</label>
+			<label kind="assignment" x="-161" y="-119">z := 0,
 lightChange := lightChange + 1</label>
 		</transition>
 		<transition>
@@ -277,7 +277,7 @@ system MajorTrafficLights, MinorTrafficLights,SensorMajorRoad,SensorMinorRoad;</
 			<comment></comment>
 		</query>
 		<query>
-			<formula>E&lt;&gt; MajorTrafficLights.Red</formula>
+			<formula>E&lt;&gt; MajorTrafficLights.RedWithSensorDisabled</formula>
 			<comment></comment>
 		</query>
 		<query>
@@ -289,19 +289,19 @@ system MajorTrafficLights, MinorTrafficLights,SensorMajorRoad,SensorMinorRoad;</
 			<comment></comment>
 		</query>
 		<query>
-			<formula>(SensorMinorRoad.LowTrafficDisabled or SensorMinorRoad.HighTrafficDisabled) --&gt; MinorTrafficLights.Green</formula>
+			<formula>MajorTrafficLights.GreenOff --&gt; MinorTrafficLights.Green</formula>
 			<comment></comment>
 		</query>
 		<query>
-			<formula>(SensorMajorRoad.LowTrafficDisabled or SensorMajorRoad.HighTrafficDisabled) --&gt; MajorTrafficLights.Green</formula>
+			<formula>(SensorMajorRoad.LowTraffic or SensorMajorRoad.HighTraffic) --&gt; MajorTrafficLights.Green</formula>
 			<comment></comment>
 		</query>
 		<query>
-			<formula>A[] MajorTrafficLights.Yellow imply MinorTrafficLights.Red or MinorTrafficLights.RedWithSensorEnabled</formula>
+			<formula>A[] MajorTrafficLights.Yellow imply MinorTrafficLights.RedWithSensorDisabled or MinorTrafficLights.RedWithSensorEnabled</formula>
 			<comment></comment>
 		</query>
 		<query>
-			<formula>A[] (SensorMinorRoad.HighTrafficDisabled and (SensorMajorRoad.NoTrafficEnabled or SensorMajorRoad.Enabled)) imply 1 &gt;= lightChange</formula>
+			<formula>A[] (SensorMinorRoad.HighTraffic and (SensorMajorRoad.NoTraffic or SensorMajorRoad.Enabled)) imply 1 &gt;= lightChange</formula>
 			<comment></comment>
 		</query>
 	</queries>
