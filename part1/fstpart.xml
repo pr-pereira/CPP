@@ -83,8 +83,8 @@ chan majorLow, majorHigh, majorNo, minorLow, minorHigh, minorNo;</declaration>
 		<transition>
 			<source ref="id5"/>
 			<target ref="id3"/>
-			<label kind="guard" x="-612" y="-212">y &gt;= 1</label>
-			<label kind="assignment" x="-612" y="-195">y := 0, yt := 0</label>
+			<label kind="guard" x="-620" y="-221">y &gt;= 1</label>
+			<label kind="assignment" x="-637" y="-204">y := 0, yt := 0</label>
 		</transition>
 		<transition>
 			<source ref="id4"/>
@@ -136,8 +136,8 @@ chan majorLow, majorHigh, majorNo, minorLow, minorHigh, minorNo;</declaration>
 		<transition>
 			<source ref="id14"/>
 			<target ref="id8"/>
-			<label kind="synchronisation" x="-161" y="-127">majorRedOn?</label>
-			<label kind="assignment" x="-153" y="-110">z := 0</label>
+			<label kind="synchronisation" x="-178" y="-127">majorRedOn?</label>
+			<label kind="assignment" x="-170" y="-110">z := 0</label>
 		</transition>
 		<transition>
 			<source ref="id11"/>
@@ -155,8 +155,8 @@ chan majorLow, majorHigh, majorNo, minorLow, minorHigh, minorNo;</declaration>
 		<transition>
 			<source ref="id13"/>
 			<target ref="id12"/>
-			<label kind="guard" x="-416" y="-34">z &gt;= 1</label>
-			<label kind="assignment" x="-416" y="-17">z := 0, zt := 0</label>
+			<label kind="guard" x="-425" y="-42">z &gt;= 1</label>
+			<label kind="assignment" x="-442" y="-25">z := 0, zt := 0</label>
 		</transition>
 		<transition>
 			<source ref="id9"/>
@@ -194,15 +194,15 @@ system Sensor, MajorTrafficLights, MinorTrafficLights;</system>
 			<comment></comment>
 		</query>
 		<query>
-			<formula>E[] MinorTrafficLights.Green imply not MinorTrafficLights.RedWithSensorDisabled</formula>
-			<comment></comment>
-		</query>
-		<query>
-			<formula>A[] (MajorTrafficLights.Red imply yt == 6)</formula>
-			<comment></comment>
-		</query>
-		<query>
 			<formula>A[] (MinorTrafficLights.RedWithSensorDisabled imply zt==6)</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>MajorTrafficLights.Yellow --&gt; (MajorTrafficLights.Red imply yt==6)</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>MinorTrafficLights.Yellow --&gt; (MinorTrafficLights.RedWithSensorDisabled imply zt==6)</formula>
 			<comment></comment>
 		</query>
 	</queries>

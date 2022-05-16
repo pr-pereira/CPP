@@ -181,8 +181,8 @@ int lightChange := 0;</declaration>
 		<transition>
 			<source ref="id11"/>
 			<target ref="id9"/>
-			<label kind="guard" x="-612" y="-212">y &gt;= 1</label>
-			<label kind="assignment" x="-612" y="-195">y := 0, yt := 0</label>
+			<label kind="guard" x="-646" y="-221">y &gt;= 1</label>
+			<label kind="assignment" x="-646" y="-204">y := 0, yt := 0</label>
 		</transition>
 	</template>
 	<template>
@@ -266,8 +266,8 @@ lightChange := 0</label>
 		<transition>
 			<source ref="id20"/>
 			<target ref="id19"/>
-			<label kind="guard" x="-416" y="-34">z &gt;= 1</label>
-			<label kind="assignment" x="-416" y="-17">z := 0, zt := 0</label>
+			<label kind="guard" x="-442" y="-42">z &gt;= 1</label>
+			<label kind="assignment" x="-442" y="-25">z := 0, zt := 0</label>
 		</transition>
 	</template>
 	<system>// Place template instantiations here.
@@ -307,11 +307,19 @@ system MajorTrafficLights, MinorTrafficLights,SensorMajorRoad,SensorMinorRoad;</
 			<comment></comment>
 		</query>
 		<query>
-			<formula>A[] (MajorTrafficLights.RedWithSensorDisabled imply yt==6)</formula>
+			<formula>A[] (MajorTrafficLights.YellowOff imply yt&lt;7)</formula>
 			<comment></comment>
 		</query>
 		<query>
-			<formula>A[] (MinorTrafficLights.RedWithSensorDisabled imply zt==6)</formula>
+			<formula>A[] (MinorTrafficLights.YellowOff imply zt&lt;7)</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>A[] SensorMajorRoad.NoTraffic imply MinorTrafficLights.Green</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>A&lt;&gt; SensorMinorRoad.LowTraffic or SensorMinorRoad.HighTraffic imply MinorTrafficLights.Green</formula>
 			<comment></comment>
 		</query>
 	</queries>
