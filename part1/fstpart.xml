@@ -2,7 +2,7 @@
 <!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
 <nta>
 	<declaration>// Place global declarations here.
-clock y, z;
+clock y, yt, z, zt;
 chan arrived;
 chan majorRedOn, minorRedOn;
 urgent chan enableSensor;
@@ -84,7 +84,7 @@ chan majorLow, majorHigh, majorNo, minorLow, minorHigh, minorNo;</declaration>
 			<source ref="id5"/>
 			<target ref="id3"/>
 			<label kind="guard" x="-612" y="-212">y &gt;= 1</label>
-			<label kind="assignment" x="-612" y="-195">y := 0</label>
+			<label kind="assignment" x="-612" y="-195">y := 0, yt := 0</label>
 		</transition>
 		<transition>
 			<source ref="id4"/>
@@ -156,7 +156,7 @@ chan majorLow, majorHigh, majorNo, minorLow, minorHigh, minorNo;</declaration>
 			<source ref="id13"/>
 			<target ref="id12"/>
 			<label kind="guard" x="-416" y="-34">z &gt;= 1</label>
-			<label kind="assignment" x="-416" y="-17">z := 0</label>
+			<label kind="assignment" x="-416" y="-17">z := 0, zt := 0</label>
 		</transition>
 		<transition>
 			<source ref="id9"/>
@@ -195,6 +195,14 @@ system Sensor, MajorTrafficLights, MinorTrafficLights;</system>
 		</query>
 		<query>
 			<formula>E[] MinorTrafficLights.Green imply not MinorTrafficLights.RedWithSensorDisabled</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>A[] (MajorTrafficLights.Red imply yt == 6)</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>A[] (MinorTrafficLights.RedWithSensorDisabled imply zt==6)</formula>
 			<comment></comment>
 		</query>
 	</queries>

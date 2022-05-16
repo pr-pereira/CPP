@@ -2,8 +2,10 @@
 <!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
 <nta>
 	<declaration>// Place global declarations here.
-clock y, z;
+clock y, yt, z, zt;
 chan arrived, majorRedOn, minorRedOn, enableMinorSensor, enableMajorSensor, minorHigh, minorLow, minorNo, majorHigh, majorLow, majorNo;
+
+
 int lightChange := 0;</declaration>
 	<template>
 		<name>SensorMinorRoad</name>
@@ -167,7 +169,7 @@ int lightChange := 0;</declaration>
 			<source ref="id12"/>
 			<target ref="id8"/>
 			<label kind="guard" x="-620" y="-416">y &gt;= 1</label>
-			<label kind="synchronisation" x="-645" y="-399">majorRedOn!</label>
+			<label kind="synchronisation" x="-646" y="-399">majorRedOn!</label>
 			<label kind="assignment" x="-620" y="-382">y := 0</label>
 		</transition>
 		<transition>
@@ -180,7 +182,7 @@ int lightChange := 0;</declaration>
 			<source ref="id11"/>
 			<target ref="id9"/>
 			<label kind="guard" x="-612" y="-212">y &gt;= 1</label>
-			<label kind="assignment" x="-612" y="-195">y := 0</label>
+			<label kind="assignment" x="-612" y="-195">y := 0, yt := 0</label>
 		</transition>
 	</template>
 	<template>
@@ -210,7 +212,7 @@ int lightChange := 0;</declaration>
 		<location id="id21" x="-272" y="-161" color="#ff0000">
 			<name x="-255" y="-178">RedWithSensorEnabled</name>
 		</location>
-		<init ref="id17"/>
+		<init ref="id21"/>
 		<transition>
 			<source ref="id16"/>
 			<target ref="id20"/>
@@ -265,7 +267,7 @@ lightChange := 0</label>
 			<source ref="id20"/>
 			<target ref="id19"/>
 			<label kind="guard" x="-416" y="-34">z &gt;= 1</label>
-			<label kind="assignment" x="-416" y="-17">z := 0</label>
+			<label kind="assignment" x="-416" y="-17">z := 0, zt := 0</label>
 		</transition>
 	</template>
 	<system>// Place template instantiations here.
@@ -301,7 +303,15 @@ system MajorTrafficLights, MinorTrafficLights,SensorMajorRoad,SensorMinorRoad;</
 			<comment></comment>
 		</query>
 		<query>
-			<formula>A[] (SensorMinorRoad.HighTraffic and (SensorMajorRoad.NoTraffic or SensorMajorRoad.Enabled)) imply 1 &gt;= lightChange</formula>
+			<formula>A[] (SensorMinorRoad.HighTraffic and SensorMajorRoad.NoTraffic) imply 1 &gt;= lightChange</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>A[] (MajorTrafficLights.RedWithSensorDisabled imply yt==6)</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>A[] (MinorTrafficLights.RedWithSensorDisabled imply zt==6)</formula>
 			<comment></comment>
 		</query>
 	</queries>
