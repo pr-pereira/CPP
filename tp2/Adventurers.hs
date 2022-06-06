@@ -139,7 +139,9 @@ advsGoTogether' st (adv1, adv2) =
 all possible n-sequences of moves that the adventures can make --}
 -- To implement 
 exec :: Int -> State -> ListDur State
-exec n s = allValidPlays s
+exec 0 s = allValidPlays s
+exec n s = do ps <- exec (n-1) s
+              allValidPlays ps 
 
 {-- Is it possible for all adventurers to be on the other side
 in <=17 min and not exceeding 5 moves ? --}
@@ -155,7 +157,11 @@ leq17 = leq 17 $ map fst $ filter p $ map remDur $ remLD $ exec 5 gInit where
 in < 17 min ? --}
 -- To implement
 l17 :: Bool
-l17 = undefined
+l17 = l 17 $ map fst $ filter p $ map remDur $ remLD $ exec 7 gInit where
+      p (_, s) = s == gInit
+      remDur (Duration a) = a
+      l x [] = False
+      l x (h:t) = h < x
 
 
 --------------------------------------------------------------------------
