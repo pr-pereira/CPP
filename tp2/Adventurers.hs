@@ -74,11 +74,17 @@ mChangeState os s = foldr changeState s os
 possible moves that the adventurers can make.  --}
 -- To implement
 allValidPlays :: State -> ListDur State
-allValidPlays st = do x1 <- advGoesAlone st P1
-                      x2 <- advGoesAlone st P2
-                      x5 <- advGoesAlone st P5
-                      x10 <- advGoesAlone st P10
-                      return x1 -- falta terminar 
+allValidPlays st = LD $
+                   remLD (advGoesAlone st P1) ++
+                   remLD (advGoesAlone st P2) ++
+                   remLD (advGoesAlone st P5) ++
+                   remLD (advGoesAlone st P10) ++ 
+                   remLD (advsGoTogether st (P1, P2)) ++ 
+                   remLD (advsGoTogether st (P1, P5)) ++ 
+                   remLD (advsGoTogether st (P1, P10)) ++ 
+                   remLD (advsGoTogether st (P2, P5)) ++ 
+                   remLD (advsGoTogether st (P2, P10)) ++ 
+                   remLD (advsGoTogether st (P5, P10))
 
 -- One adventurer crosses
 -- if adventurers cannot grab the lantern, the state remains the same
@@ -88,7 +94,7 @@ advGoesAlone st adv =
       then LD $ [Duration (getTimeAdv adv, mChangeState [Left adv, lantern] st)]
       else return st
 
--- Two adventurer cross
+-- Two adventurers cross
 -- if adventurers cannot grab the lantern, the state remains the same
 advsGoTogether :: State -> (Adventurer, Adventurer) -> ListDur State
 advsGoTogether st (adv1, adv2) =
