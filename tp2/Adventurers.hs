@@ -9,6 +9,8 @@ data Adventurer = P1 | P2 | P5 | P10 deriving (Show,Eq)
 -- Adventurers + the lantern
 type Object = Either Adventurer ()
 
+lantern = Right ()
+
 -- The time that each adventurer needs to cross the bridge
 -- To implement 
 getTimeAdv :: Adventurer -> Int
@@ -45,6 +47,20 @@ instance Eq State where
 gInit :: State
 gInit = const False
 
+-- The end state of the game
+gEnd :: State
+gEnd = const True
+
+
+-- state for testing
+st :: State
+st (Left P1) = True
+st (Left P2) = False
+st (Left P5) = False
+st (Left P10) = False
+st ln = True
+
+
 -- Changes the state of the game for a given object
 changeState :: Object -> State -> State
 changeState a s = let v = s a in (\x -> if x == a then not v else s x)
@@ -58,7 +74,55 @@ mChangeState os s = foldr changeState s os
 possible moves that the adventurers can make.  --}
 -- To implement
 allValidPlays :: State -> ListDur State
-allValidPlays = undefined
+allValidPlays st = do x1 <- advGoesAlone st P1
+                      x2 <- advGoesAlone st P2
+                      x5 <- advGoesAlone st P5
+                      x10 <- advGoesAlone st P10
+                      return x1 -- falta terminar 
+
+-- One adventurer crosses
+-- if adventurers cannot grab the lantern, the state remains the same
+advGoesAlone :: State -> Adventurer -> ListDur State
+advGoesAlone st adv =
+      if st (Left adv) == st lantern
+      then LD $ [Duration (getTimeAdv adv, mChangeState [Left adv, lantern] st)]
+      else return st
+
+-- Two adventurer cross
+-- if adventurers cannot grab the lantern, the state remains the same
+advsGoTogether :: State -> (Adventurer, Adventurer) -> ListDur State
+advsGoTogether st (adv1, adv2) =
+      if st (Left adv1) == st (Left adv2) && st (Left adv1) == st lantern
+      then LD $
+        [Duration (max (getTimeAdv adv1) (getTimeAdv adv2),
+         mChangeState [Left adv1, Left adv2, lantern] st)]
+      else return st
+
+-- With no monadic effect ------------------------------------------------
+allValidPlays' :: State -> [State]
+allValidPlays' s = filter (/= s) $
+                   [advGoesAlone' s P1] ++
+                   [advGoesAlone' s P2] ++
+                   [advGoesAlone' s P5] ++
+                   [advGoesAlone' s P10] ++
+                   [advsGoTogether' s (P1, P2)] ++
+                   [advsGoTogether' s (P1, P5)] ++
+                   [advsGoTogether' s (P1, P10)] ++
+                   [advsGoTogether' s (P2, P5)] ++
+                   [advsGoTogether' s (P2, P10)] ++
+                   [advsGoTogether' s (P5, P10)]
+
+advGoesAlone' :: State -> Adventurer -> State
+advGoesAlone' st adv = if st (Left adv) == st lantern
+                       then mChangeState [Left adv, lantern] st
+                       else st
+
+advsGoTogether' :: State -> (Adventurer, Adventurer) -> State
+advsGoTogether' st (adv1, adv2) =
+                if st (Left adv1) == st (Left adv2) && st (Left adv1) == st lantern
+                then mChangeState [Left adv1, Left adv2, lantern] st
+                else st
+--------------------------------------------------------------------------
 
 {-- For a given number n and initial state, the function calculates
 all possible n-sequences of moves that the adventures can make --}
