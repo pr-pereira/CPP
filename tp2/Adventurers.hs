@@ -69,22 +69,27 @@ changeState a s = let v = s a in (\x -> if x == a then not v else s x)
 mChangeState :: [Object] -> State -> State
 mChangeState os s = foldr changeState s os
                                
+-- moves that take 0 minutes is an empty move 
+rmEmptyMoves :: ListDur State -> ListDur State
+rmEmptyMoves = LD . (filter g0) . remLD where
+               g0 (Duration (0, _)) = False
+               g0 _ = True
 
 {-- For a given state of the game, the function presents all the
 possible moves that the adventurers can make.  --}
 -- To implement
 allValidPlays :: State -> ListDur State
-allValidPlays st = LD $
-                   remLD (advGoesAlone st P1) ++
-                   remLD (advGoesAlone st P2) ++
-                   remLD (advGoesAlone st P5) ++
-                   remLD (advGoesAlone st P10) ++ 
-                   remLD (advsGoTogether st (P1, P2)) ++ 
-                   remLD (advsGoTogether st (P1, P5)) ++ 
-                   remLD (advsGoTogether st (P1, P10)) ++ 
-                   remLD (advsGoTogether st (P2, P5)) ++ 
-                   remLD (advsGoTogether st (P2, P10)) ++ 
-                   remLD (advsGoTogether st (P5, P10))
+allValidPlays st = rmEmptyMoves $ manyChoice $ 
+                   [advGoesAlone st P1] ++
+                   [advGoesAlone st P2] ++
+                   [advGoesAlone st P5] ++
+                   [advGoesAlone st P10] ++
+                   [advsGoTogether st (P1, P2)] ++
+                   [advsGoTogether st (P1, P5)] ++
+                   [advsGoTogether st (P1, P10)] ++
+                   [advsGoTogether st (P2, P5)] ++
+                   [advsGoTogether st (P2, P10)] ++
+                   [advsGoTogether st (P5, P10)]
 
 -- One adventurer crosses
 -- if adventurers cannot grab the lantern, the state remains the same
