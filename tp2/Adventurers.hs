@@ -54,11 +54,11 @@ gEnd = const True
 
 -- state for testing
 st :: State
-st (Left P1) = True
-st (Left P2) = False
-st (Left P5) = False
-st (Left P10) = False
-st ln = True
+st (Left P1) = False
+st (Left P2) = True
+st (Left P5) = True
+st (Left P10) = True
+st ln = False
 
 
 -- Changes the state of the game for a given object
@@ -77,9 +77,35 @@ rmEmptyMoves = LD . (filter g0) . remLD where
 
 {-- For a given state of the game, the function presents all the
 possible moves that the adventurers can make.  --}
--- To implement
 allValidPlays :: State -> ListDur State
-allValidPlays st = rmEmptyMoves $ manyChoice $ 
+allValidPlays s = LD $ map Duration $ map (id >< (mCS s)) t where
+  t = (map (addLantern . addTime) . combinationsUpTo2 . advsWhereLanternIs) s
+  mCS = flip mChangeState
+
+addTime :: [Adventurer] -> (Int, [Adventurer])
+addTime = split (maximum . (map getTimeAdv)) id
+
+addLantern :: (Int, [Adventurer]) -> (Int, [Object])
+addLantern = id >< ((lantern :) . map Left)
+
+advsWhereLanternIs :: State -> [Adventurer]
+advsWhereLanternIs s = filter ((== s lantern) . s . Left) [P1, P2, P5, P10]
+
+combinationsUpTo2 :: Eq a => [a] -> [[a]]
+-- example : combinationsUpTo2 [1,2,3] = [[1], [2], [3], [1,2], [1,3], [2,3]]
+combinationsUpTo2 = conc . (split f g) where
+      f t = do {x <- t; return [x]}
+      g t = do {x <- t; y <- (remove x t); return [x, y]}
+      remove x [] = []
+      remove x (h:t) = if x==h then t else remove x t
+
+
+
+--------------------------------------------------------------------------
+-- Initial version - not very efficient because we are always comparing
+-- the adventurer state with the lantern state
+allValidPlays2 :: State -> ListDur State
+allValidPlays2 st = rmEmptyMoves $ manyChoice $ 
                    [advGoesAlone st P1] ++
                    [advGoesAlone st P2] ++
                    [advGoesAlone st P5] ++
@@ -108,6 +134,7 @@ advsGoTogether st (adv1, adv2) =
         [Duration (max (getTimeAdv adv1) (getTimeAdv adv2),
          mChangeState [Left adv1, Left adv2, lantern] st)]
       else return st
+--------------------------------------------------------------------------
 
 
 {-- For a given number n and initial state, the function calculates
@@ -225,28 +252,4 @@ k : X -> ListDur(S x Y)   LD [Duration (String,a)]
 h : S x X -> ListDur(S x Y)
 -------------------------------------
 h* : ListDur(S x X) -> ListDur(S x Y)
-
 -}
-
---------------------------------------------------------------------------
--- otimização
-
-allValidPlaysFINAL :: State -> ListDur State
-allValidPlaysFINAL = undefined
-
--- new function for all valid plays
-allValidPlays' :: State -> [State]
-allValidPlays' s = map ((flip mChangeState) s) t where
-  t = (map (lantern :) . combinationsUpTo2 . objsWhereLanternIs) s
-
-objsWhereLanternIs :: State -> [Object]
-objsWhereLanternIs s = map Left $
-                       filter ((== s lantern) . s . Left) [P1, P2, P5, P10]
-
-combinationsUpTo2 :: Eq a => [a] -> [[a]]
--- example : combinationsUpTo2 [1,2,3] = [[1], [2], [3], [1,2], [1,3], [2,3]]
-combinationsUpTo2 = conc . (split f g) where
-      f t = do {x <- t; return [x]}
-      g t = do {x <- t; y <- (remove x t); return [x, y]}
-      remove x [] = []
-      remove x (h:t) = if x==h then t else remove x t
