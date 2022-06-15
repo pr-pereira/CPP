@@ -109,31 +109,6 @@ advsGoTogether st (adv1, adv2) =
          mChangeState [Left adv1, Left adv2, lantern] st)]
       else return st
 
--- With no monadic effect ------------------------------------------------
-allValidPlays' :: State -> [State]
-allValidPlays' s = filter (/= s) $
-                   [advGoesAlone' s P1] ++
-                   [advGoesAlone' s P2] ++
-                   [advGoesAlone' s P5] ++
-                   [advGoesAlone' s P10] ++
-                   [advsGoTogether' s (P1, P2)] ++
-                   [advsGoTogether' s (P1, P5)] ++
-                   [advsGoTogether' s (P1, P10)] ++
-                   [advsGoTogether' s (P2, P5)] ++
-                   [advsGoTogether' s (P2, P10)] ++
-                   [advsGoTogether' s (P5, P10)]
-
-advGoesAlone' :: State -> Adventurer -> State
-advGoesAlone' st adv = if st (Left adv) == st lantern
-                       then mChangeState [Left adv, lantern] st
-                       else st
-
-advsGoTogether' :: State -> (Adventurer, Adventurer) -> State
-advsGoTogether' st (adv1, adv2) =
-                if st (Left adv1) == st (Left adv2) && st (Left adv1) == st lantern
-                then mChangeState [Left adv1, Left adv2, lantern] st
-                else st
---------------------------------------------------------------------------
 
 {-- For a given number n and initial state, the function calculates
 all possible n-sequences of moves that the adventures can make --}
@@ -146,22 +121,25 @@ exec n s = do ps <- exec (n-1) s
 {-- Is it possible for all adventurers to be on the other side
 in <=17 min and not exceeding 5 moves ? --}
 -- To implement
-leq17 :: Bool
-leq17 = leq 17 $ map fst $ filter p $ map remDur $ remLD $ exec 5 gInit where
-        p (_, s) = s == gInit
+--leq17 :: Bool
+leq17 = leq' 17 0 ||
+        leq' 17 1 ||
+        leq' 17 2 ||
+        leq' 17 3 ||
+        leq' 17 4 where
+        leq' n i = leqList n $ map fst $ filter p $ map remDur $ remLD $ exec i gInit
+        p (_, s) = s == gEnd
         remDur (Duration a) = a
-        leq x [] = False
-        leq x (h:t) = h <= x
+        leqList x [] = False
+        leqList x (h:t) = h <= x || leqList x t
 
 {-- Is it possible for all adventurers to be on the other side
 in < 17 min ? --}
 -- To implement
 l17 :: Bool
-l17 = l 17 $ map fst $ filter p $ map remDur $ remLD $ exec 7 gInit where
-      p (_, s) = s == gInit
-      remDur (Duration a) = a
-      l x [] = False
-      l x (h:t) = h < x
+l17 = undefined
+
+-- é necessário provar que não é possível... como se prova? ainda não sei
 
 
 --------------------------------------------------------------------------
@@ -173,28 +151,102 @@ data ListDur a = LD [Duration a] deriving Show
 remLD :: ListDur a -> [Duration a]
 remLD (LD x) = x
 
--- To implement
 instance Functor ListDur where
-   fmap f = let f' = \(Duration (d, x)) -> (Duration (d, f x)) in
-    LD . (map f') . remLD
+    fmap f = LD . (map (fmap f)) . remLD
 
--- To implement
 instance Applicative ListDur where
-   pure x = LD [Duration (0, x)]
-   l1 <*> l2 = LD $ do x <- remLD l1
-                       y <- remLD l2
-                       g(x, y) where
+    pure = LD . pure . pure
+    l1 <*> l2 = LD $ do x <- remLD l1
+                        y <- remLD l2
+                        g(x, y) where
                         g(Duration (d1, f), Duration (d2, x)) =
                           return $ Duration (d1 + d2, f x)
 
--- To implement
 instance Monad ListDur where
-   return = pure
-   l >>= k = LD $ do x <- remLD l
-                     g x where
-                       g (Duration (d, a)) = 
-                         map (\(Duration (d', a)) -> (Duration (d + d', a))) (remLD (k a))
+    return = pure
+    l >>= k = LD $ do
+      x <- remLD l
+      g x where
+        g (Duration (d, a)) = 
+          map (\(Duration (d', a)) -> (Duration (d + d', a))) (remLD (k a))
 
 manyChoice :: [ListDur a] -> ListDur a
 manyChoice = LD . concat . (map remLD)
 --------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------
+{-- monad para ter um trace das jogadas --}
+
+data ListDurLogList a = LSD [Duration (String, a)] deriving Show
+
+remLSD :: ListDurLogList a -> [Duration (String, a)]
+remLSD (LSD x) = x
+
+{-
+k : a -> b
+fmap k : Duration a -> Duration b
+g : (String, Duration a) -> (String, Duration b)
+g = id >< (fmap k)
+map g : [(String, Duration a)] -> [(String, Duration b)]
+-}
+instance Functor ListDurLogList where
+    fmap f = LSD . (map (fmap (id >< f))) . remLSD
+
+instance Applicative ListDurLogList where
+    pure = LSD . pure . pure . (\x -> ("", x))
+    l1 <*> l2 = undefined
+
+instance Monad ListDurLogList where
+    return = pure
+    l >>= k = let k' = LD . remLSD . k
+                  l' = (LD . remLSD) l in
+                  LSD $ remLD (l' >>= (auxLSDMonad k'))
+
+
+auxLSDMonad :: (x -> ListDur (String, y)) -> ((String, x) -> ListDur (String, y))
+auxLSDMonad = undefined
+
+
+{-
+k : X -> ListDurLogList Y
+-----------------------------------------
+k* : ListDurLogList X -> ListDurLogList Y    (definir)
+
+
+
+k : X -> ListDur Y
+---------------------------
+k* : ListDur X -> ListDur Y   (já está definida)
+
+
+k : X -> ListDur(S x Y)   LD [Duration (String,a)]
+-------------------------
+h : S x X -> ListDur(S x Y)
+-------------------------------------
+h* : ListDur(S x X) -> ListDur(S x Y)
+
+-}
+
+--------------------------------------------------------------------------
+-- otimização
+
+allValidPlaysFINAL :: State -> ListDur State
+allValidPlaysFINAL = undefined
+
+-- new function for all valid plays
+allValidPlays' :: State -> [State]
+allValidPlays' s = map ((flip mChangeState) s) t where
+  t = (map (lantern :) . combinationsUpTo2 . objsWhereLanternIs) s
+
+objsWhereLanternIs :: State -> [Object]
+objsWhereLanternIs s = map Left $
+                       filter ((== s lantern) . s . Left) [P1, P2, P5, P10]
+
+combinationsUpTo2 :: Eq a => [a] -> [[a]]
+-- example : combinationsUpTo2 [1,2,3] = [[1], [2], [3], [1,2], [1,3], [2,3]]
+combinationsUpTo2 = conc . (split f g) where
+      f t = do {x <- t; return [x]}
+      g t = do {x <- t; y <- (remove x t); return [x, y]}
+      remove x [] = []
+      remove x (h:t) = if x==h then t else remove x t
