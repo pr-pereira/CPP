@@ -1,8 +1,10 @@
 {-# LANGUAGE FlexibleInstances #-}
 module Adventurers where
 
-import DurationMonad
 import Cp
+import DurationMonad
+import ListDur
+import ListLogDur
 
 -- The list of adventurers
 data Adventurer = P1 | P2 | P5 | P10 deriving (Show,Eq)
@@ -116,7 +118,7 @@ leq17 = leq' 17 0 ||
         leq' 17 2 ||
         leq' 17 3 ||
         leq' 17 4 where
-        leq' n i = leqList n $ map fst $ filter p $ map remDur $ remLD $ exec i gInit
+        leq' n i = leqList n . map fst . filter p . map remDur . remLD $ exec i gInit
         p (_, s) = s == gEnd
         remDur (Duration a) = a
         leqList x [] = False
@@ -125,93 +127,13 @@ leq17 = leq' 17 0 ||
 {-- Is it possible for all adventurers to be on the other side
 in < 17 min ? --}
 -- To implement
-l17 :: Bool
-l17 = undefined
-
--- é necessário provar que não é possível... como se prova? ainda não sei
-
-
---------------------------------------------------------------------------
-{-- Implementation of the monad used for the problem of the adventurers.
-Recall the Knight's quest --}
-
-data ListDur a = LD [Duration a] deriving Show
-
-remLD :: ListDur a -> [Duration a]
-remLD (LD x) = x
-
-instance Functor ListDur where
-    fmap f = LD . (map (fmap f)) . remLD
-
-instance Applicative ListDur where
-    pure = LD . pure . pure
-    l1 <*> l2 = LD $ do x <- remLD l1
-                        y <- remLD l2
-                        g(x, y) where
-                        g(Duration (d1, f), Duration (d2, x)) =
-                          return $ Duration (d1 + d2, f x)
-
-instance Monad ListDur where
-    return = pure
-    l >>= k = LD $ do
-      x <- remLD l
-      g x where
-        g (Duration (d, a)) = 
-          map (\(Duration (d', a)) -> (Duration (d + d', a))) (remLD (k a))
-
-manyChoice :: [ListDur a] -> ListDur a
-manyChoice = LD . concat . (map remLD)
---------------------------------------------------------------------------
-
-
---------------------------------------------------------------------------
-{-- monad para ter um trace das jogadas --}
-
-data ListDurLogList a = LSD [Duration (String, a)] deriving Show
-
-remLSD :: ListDurLogList a -> [Duration (String, a)]
-remLSD (LSD x) = x
-
-{-
-k : a -> b
-fmap k : Duration a -> Duration b
-g : (String, Duration a) -> (String, Duration b)
-g = id >< (fmap k)
-map g : [(String, Duration a)] -> [(String, Duration b)]
--}
-instance Functor ListDurLogList where
-    fmap f = LSD . (map (fmap (id >< f))) . remLSD
-
-instance Applicative ListDurLogList where
-    pure = LSD . pure . pure . (\x -> ("", x))
-    l1 <*> l2 = undefined
-
-instance Monad ListDurLogList where
-    return = pure
-    l >>= k = let k' = LD . remLSD . k
-                  l' = (LD . remLSD) l in
-                  LSD $ remLD (l' >>= (auxLSDMonad k'))
-
-
-auxLSDMonad :: (x -> ListDur (String, y)) -> ((String, x) -> ListDur (String, y))
-auxLSDMonad = undefined
-
-
-{-
-k : X -> ListDurLogList Y
------------------------------------------
-k* : ListDurLogList X -> ListDurLogList Y    (definir)
+--l17 :: Bool
+l17 = minimum . map fst . filter p . map remDur . remLD $ exec 6 gInit where
+      remDur (Duration a) = a
+      p (_, s) = s == gEnd
 
 
 
-k : X -> ListDur Y
----------------------------
-k* : ListDur X -> ListDur Y   (já está definida)
 
 
-k : X -> ListDur(S x Y)   LD [Duration (String,a)]
--------------------------
-h : S x X -> ListDur(S x Y)
--------------------------------------
-h* : ListDur(S x X) -> ListDur(S x Y)
--}
+
