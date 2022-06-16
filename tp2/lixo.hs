@@ -7,6 +7,11 @@ kleisli = flip (>>=)
 --------------------------------------------------------------------------
 -- Initial version - not very efficient because we are always comparing
 -- the adventurer state with the lantern state
+rmEmptyMoves :: ListDur State -> ListDur State
+rmEmptyMoves = LD . (filter g0) . remLD where
+               g0 (Duration (0, _)) = False
+               g0 _ = True
+
 allValidPlays2 :: State -> ListDur State
 allValidPlays2 st = rmEmptyMoves $ manyChoice $ 
                    [advGoesAlone st P1] ++

@@ -30,11 +30,11 @@ side of the bridge.  --}
 type State = Object -> Bool
 
 instance Show State where
-  show s = show . show $ [s (Left P1),
-                          s (Left P2),
-                          s (Left P5),
-                          s (Left P10),
-                          s (Right ())]
+  show s = (show . (fmap show)) [s (Left P1),
+                                 s (Left P2),
+                                 s (Left P5),
+                                 s (Left P10),
+                                 s (Right ())]
 
 instance Eq State where
   (==) s1 s2 = and [s1 (Left P1) == s2 (Left P1),
@@ -42,6 +42,8 @@ instance Eq State where
                     s1 (Left P5) == s2 (Left P5),
                     s1 (Left P10) == s2 (Left P10),
                     s1 (Right ()) == s2 (Right ())]
+
+
 
 -- The initial state of the game
 gInit :: State
@@ -51,41 +53,15 @@ gInit = const False
 gEnd :: State
 gEnd = const True
 
-state2List :: State -> [Bool]
-state2List s = [s (Left P1),
-             s (Left P2),
-             s (Left P5),
-             s (Left P10),
-             s (Right ())]
 
-indexesWithDifferentValues :: Eq a => ([a], [a]) -> [Int]
--- Example : indexesWithDifferentValues [1,2,3,4] [10,2,23,4] = [0,2]
-indexesWithDifferentValues (l1, l2) = aux l1 l2 0 where
-  aux :: Eq a => [a] -> [a] -> Int -> [Int]
-  aux [] l _ = []
-  aux l [] _ = []
-  aux (h1:t1) (h2:t2) index = if h1 /= h2 then index : aux t1 t2 (index + 1)
-                             else aux t1 t2 (index + 1)
+-- state for testing
+st :: State
+st (Left P1) = False
+st (Left P2) = True
+st (Left P5) = True
+st (Left P10) = True
+st ln = False
 
--- pre-condition: list length is even
-pairConsecutiveElements :: [a] -> [(a,a)]
-pairConsecutiveElements [] = []
-pairConsecutiveElements [x] = []
-pairConsecutiveElements (x1:x2:xs) = (x1,x2) : pairConsecutiveElements (x2:xs) 
-
-index2Adv :: Int -> String
-index2Adv 0 = "P1"
-index2Adv 1 = "P2"
-index2Adv 2 = "P5"
-index2Adv 3 = "P10"
-
-prettyLog :: [String] -> String
-prettyLog = Cp.cond ((>1) . length) f ((++ " cross\n") . head) where
-    f = (++" crosses\n") . conc . ((concat . map (++" and ")) >< id) . (split init last)
-
-printTrace :: [[Bool]] -> String
-printTrace = concat . (map prettyLog) . (map ((map index2Adv) . 
-             init . indexesWithDifferentValues)) . pairConsecutiveElements
 
 -- Changes the state of the game for a given object
 changeState :: Object -> State -> State
@@ -95,14 +71,12 @@ changeState a s = let v = s a in (\x -> if x == a then not v else s x)
 mChangeState :: [Object] -> State -> State
 mChangeState os s = foldr changeState s os
 
-
 {-- For a given state of the game, the function presents all the
 possible moves that the adventurers can make.  --}
-allValidPlays :: State -> ListLogDur State
-allValidPlays s = LSD $ map Duration $ map (id >< (split (toTrace s) id) . (mCS s)) t where
+allValidPlays :: State -> ListDur State
+allValidPlays s = LD $ map Duration $ map (id >< (mCS s)) t where
   t = (map (addLantern . addTime) . combinationsUpTo2 . advsWhereLanternIs) s
   mCS = flip mChangeState
-  toTrace s = printTrace . ((state2List s) :) . singl . state2List
 
 addTime :: [Adventurer] -> (Int, [Adventurer])
 addTime = split (maximum . (map getTimeAdv)) id
@@ -123,43 +97,37 @@ combinationsUpTo2 = conc . (split f g) where
 
 {-- For a given number n and initial state, the function calculates
 all possible n-sequences of moves that the adventures can make --}
-exec :: Int -> State -> ListLogDur State
+-- To implement 
+exec :: Int -> State -> ListDur State
 exec 0 s = allValidPlays s
 exec n s = do ps <- exec (n-1) s
-              allValidPlays ps
-
--- executa até chegar a um estado que cumpra um determinado predicado
-execPred :: (State -> Bool) -> Bool -> ListLogDur State
-execPred = undefined
+              allValidPlays ps 
 
 {-- Is it possible for all adventurers to be on the other side
 in <=17 min and not exceeding 5 moves ? --}
-leq17 :: Bool
-leq17 = leq' 17 0 || leq' 17 1 || leq' 17 2 || leq' 17 3 || leq' 17 4 where
-        leq' n i = leqList n . map fst . filter p . map remDur . remLSD $ exec i gInit
-        p (_, (_,s)) = s == gEnd
+-- To implement
+--leq17 :: Bool
+leq17 = leq' 17 0 ||
+        leq' 17 1 ||
+        leq' 17 2 ||
+        leq' 17 3 ||
+        leq' 17 4 where
+        leq' n i = leqList n . map fst . filter p . map remDur . remLD $ exec i gInit
+        p (_, s) = s == gEnd
         remDur (Duration a) = a
         leqList x [] = False
         leqList x (h:t) = h <= x || leqList x t
 
-leqX :: Int -> (Int, Bool)
-leqX = undefined
-
--- lX é igual a leqX mas em vez de ser <= é apenas <
-lX :: Int -> (Int, Bool)
-lX = undefined
-
--- este trace é específico para 4 execuções e um estado igual a gEnd com duração 17 min.
-trace :: IO ()
-trace = putStr . p1 . p2 . head . filter p . map remDur . remLSD $ exec 4 gInit where
-        p (d, (_,s)) = d == 17 && s == gEnd
-        remDur (Duration a) = a
-        addInitSt = ((state2List gInit) :)
-
 {-- Is it possible for all adventurers to be on the other side
 in < 17 min ? --}
-l17 :: Bool
-l17 = undefined
+-- To implement
+--l17 :: Bool
+l17 = minimum . map fst . filter p . map remDur . remLD $ exec 6 gInit where
+      remDur (Duration a) = a
+      p (_, s) = s == gEnd
+
+
+
 
 
 
