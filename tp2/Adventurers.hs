@@ -129,37 +129,52 @@ exec n s = do ps <- exec (n-1) s
               allValidPlays ps
 
 -- executa até chegar a um estado que cumpra um determinado predicado
-execPred :: (State -> Bool) -> Bool -> ListLogDur State
-execPred = undefined
+execPred :: (State -> Bool) -> State -> (Int, ListLogDur State)
+execPred p s = aux p s 0 where
+               aux p s it = let st = exec it s 
+                                res = filter pred (map remDur (remLSD st)) in 
+                                if length (res) > 0 then ((it+1) , LSD (map Duration res))
+                                else aux p s (it+1) where
+                                  remDur (Duration a) = a
+                                  pred (_, (_,s)) = p s
+
+leqX :: Int -> (Int, Bool)
+leqX n = if res then (it,res)
+                else (0,res) where
+                  res = length (filter p (map remDur (remLSD l))) > 0
+                  (it,l) = execPred (== gEnd) gInit
+                  p (d,(_,_)) = d <= n
+                  remDur (Duration a) = a
+
+lX :: Int -> (Int, Bool)
+lX n = if res then (it,res)
+              else (0,res) where
+                res = length (filter p (map remDur (remLSD l))) > 0
+                (it,l) = execPred (== gEnd) gInit
+                p (d,(_,_)) = d < n
+                remDur (Duration a) = a
 
 {-- Is it possible for all adventurers to be on the other side
 in <=17 min and not exceeding 5 moves ? --}
 leq17 :: Bool
-leq17 = leq' 17 0 || leq' 17 1 || leq' 17 2 || leq' 17 3 || leq' 17 4 where
-        leq' n i = leqList n . map fst . filter p . map remDur . remLSD $ exec i gInit
-        p (_, (_,s)) = s == gEnd
-        remDur (Duration a) = a
-        leqList x [] = False
-        leqList x (h:t) = h <= x || leqList x t
+leq17 = p2 (leqX 17) && p1 (leqX 17) <= 5
 
-leqX :: Int -> (Int, Bool)
-leqX = undefined
-
--- lX é igual a leqX mas em vez de ser <= é apenas <
-lX :: Int -> (Int, Bool)
-lX = undefined
-
--- este trace é específico para 4 execuções e um estado igual a gEnd com duração 17 min.
-trace :: IO ()
-trace = putStr . p1 . p2 . head . filter p . map remDur . remLSD $ exec 4 gInit where
-        p (d, (_,s)) = d == 17 && s == gEnd
-        remDur (Duration a) = a
-        addInitSt = ((state2List gInit) :)
 
 {-- Is it possible for all adventurers to be on the other side
 in < 17 min ? --}
-l17 :: Bool
-l17 = undefined
+l17' :: Bool
+l17' = length (filter p (map remDur (remLSD l))) > 0 where
+        (_,l) = execPred (== gEnd) gInit
+        p (d,(_,_)) = d < 17
+        remDur (Duration a) = a
+
+
+-- este trace é específico para 4 execuções e um estado igual a gEnd com duração 17 min.
+--trace :: IO ()
+trace =  map remDur . remLSD . p2 $ execPred (== gEnd) gInit where
+        remDur (Duration a) = a
+        p (d,(_,_)) = undefined
+
 
 
 
