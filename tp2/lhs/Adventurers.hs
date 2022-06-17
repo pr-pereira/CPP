@@ -67,6 +67,13 @@ indexesWithDifferentValues (l1, l2) = aux l1 l2 0 where
   aux (h1:t1) (h2:t2) index = if h1 /= h2 then index : aux t1 t2 (index + 1)
                              else aux t1 t2 (index + 1)
 
+pairConsecutiveElements :: [a] -> [(a,a)]
+pairConsecutiveElements [] = []
+pairConsecutiveElements [x] = [] -- the goal is then to compare the pairs, 
+                                 -- it makes no sense to compare two elements that
+                                 -- we already know are the same...
+pairConsecutiveElements (x1:x2:xs) = (x1,x2) : pairConsecutiveElements (x2:xs) 
+
 -- according to the representation of the state, adventurers can be represented by indexes
 index2Adv :: Int -> String
 index2Adv 0 = "P1"
@@ -74,8 +81,9 @@ index2Adv 1 = "P2"
 index2Adv 2 = "P5"
 index2Adv 3 = "P10"
 
-printTrace :: ([Bool], [Bool]) -> String
-printTrace = prettyLog . (map index2Adv) . init . indexesWithDifferentValues
+printTrace :: [[Bool]] -> String
+printTrace = concat . (map prettyLog) . (map ((map index2Adv) . 
+             init . indexesWithDifferentValues)) . pairConsecutiveElements
 
 prettyLog :: [String] -> String
 prettyLog = Cp.cond ((>1) . length) f ((++ " cross\n") . head) where
@@ -89,13 +97,14 @@ changeState a s = let v = s a in (\x -> if x == a then not v else s x)
 mChangeState :: [Object] -> State -> State
 mChangeState os s = foldr changeState s os
 
+
 {-- For a given state of the game, the function presents all the
 possible moves that the adventurers can make.  --}
 allValidPlays :: State -> ListLogDur State
 allValidPlays s = LSD $ map Duration $ map (id >< (split (toTrace s) id) . (mCS s)) t where
   t = (map (addLantern . addTime) . combinationsUpTo2 . advsWhereLanternIs) s
   mCS = flip mChangeState
-  toTrace s s' = printTrace (state2List s, state2List s')
+  toTrace s = printTrace . ((state2List s) :) . singl . state2List
 
 addTime :: [Adventurer] -> (Int, [Adventurer])
 addTime = split (maximum . (map getTimeAdv)) id
@@ -158,15 +167,21 @@ in < 17 min ? --}
 l17 :: Bool
 l17 = p2 (lX 17)
 
+l17' :: Bool
+l17' = length (filter p (map remDur (remLSD l))) > 0 where
+        (_,l) = execPred (== gEnd) gInit
+        p (d,(_,_)) = d < 17
+        remDur (Duration a) = a
+
 -- traces of all possibles plays for the problem:
 -- is it possible for all adventurers to be on the other side
 -- in <=17 min and not exceeding 5 moves ?
-optimalTrace =
-        putStrLn . t . map remDur . remLSD . p2 $ execPred (== gEnd) gInit where
-        t = prt . (split (head . map p1) (map (p1.p2))) . pairFilter . split (minimum . map p1) id
+trace :: IO ()
+trace = Cp.cond ((<=5) . p1) (t . p2) (const (putStrLn "Not possible!"))
+        $ execPred (== gEnd) gInit where
+        t = prt . map (p1.p2) . pairFilter . split (minimum . map p1) id . map remDur . remLSD
         remDur (Duration a) = a
         pairFilter (d, l) = filter (\(d',(_,_)) -> d == d') l
-        p = Cp.cond ((>1) . length) p' (head)
-        p' = conc . split (concat . map ((++("\nOR\n\n"))) . init) last
-        prt (d, l) = (p l) ++ "\nin " ++ (show d) ++ " minutes."
+        prt = Cp.cond ((>1) . length) prt' (putStr . head)
+        prt' = putStrLn . conc . split (concat . map ((++("\nOR\n\n"))) . init) last
 
