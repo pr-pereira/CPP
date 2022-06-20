@@ -4,7 +4,7 @@
 \usepackage{palatino}
 \usepackage[colorlinks=true,linkcolor=blue,citecolor=blue]{hyperref}
 \usepackage{graphicx}
-\usepackage{tp2}
+\usepackage{Adventurers}
 \usepackage{subcaption}
 \usepackage{adjustbox}
 \usepackage{color}
@@ -155,7 +155,7 @@ This assignment aims to model and to analyze a system with a powerful weapon of 
 %if False
 \begin{code}
 {-# LANGUAGE FlexibleInstances #-}
-module TP2 where
+module Adventurers where
 
 import Cp
 import DurationMonad
@@ -177,7 +177,7 @@ One companion disagrees and claims that it can be done in 17 minutes.
 Who is right? That's what we're going to find out.
 
 \section{Monadic Approach via \textsc{Haskell} for Modelling the Problem}
-The solution is to take advantage of the non-deterministic monad (monad List) to use brute force and calculate all possible moves until we reach the final state. To deal with the time adventurers need to cross, we'll use the duration monad (already implemented by prof. Renato Neves) whose implementation add the time each adventurer takes in a given move. This duration monad will be \aspas{encapsulated} in our final monad |ListLogDur|. This one will offer, for a certain state, a list of following states with the respective duration needed to get it and will also offer the path traveled at the moment. This path will be in a |string| and, as we'll see, it is going to be very elegant. For now, let's analyze the construction of our monad!
+The solution is to take advantage of the non-deterministic monad (monad List) to use brute force and calculate all possible moves until we reach the final state. To deal with the time adventurers need to cross, we'll use the duration monad (already implemented by prof. Renato Neves) whose implementation adds the time each adventurer takes in a given move. This duration monad will be \aspas{encapsulated} in our final monad |ListLogDur|. This one will offer, for a certain state, a list of following states with the respective duration needed to get it and will also offer the path traveled at the moment. This path will be in a |string| and, as we'll see, it is going to be very elegant. For now, let's analyze the construction of our monad!
 \subsection{The \textit{ListLogDur} monad}
 As said before, we'll use our monad to have a list of states with the respective duration needed to get it and the path traveled at the moment. However, we want our monad to be parametric. So,
 \begin{spec}
@@ -276,7 +276,7 @@ Even more useful is a function that changes the state of the game of a list of o
 mChangeState :: [Object] -> State -> State
 mChangeState os s = foldr changeState s os
 \end{code}
-With this, we are now ready to define all the valids plays the adventurers can make for a given state of the game, storing, obviously, the respective duration required and the move made. So, for a given |s :: State|, we'll compute the |allValidPlays :: ListLogDur State| $\sim$ |LSD [Duration (String, State)]|. For that, let's think:
+With this, we are now ready to define all the valids plays the adventurers can make for a given state of the game, storing, obviously, the respective duration required and the move made. So, for a given |s :: State|, we'll compute |allValidPlays :: ListLogDur State| $\sim$ |LSD [Duration (String, State)]|. For that, let's think:
 \begin{enumerate}
 \item We need to move adventurers --- but only adventurers who can pick up the lantern. So, for that given state, we first need to calculate the adventurers who are where the lantern is.
 \begin{code}
@@ -333,7 +333,7 @@ indexesWithDifferentValues (l1, l2) = aux l1 l2 0 where
   aux (h1:t1) (h2:t2) index = if h1 /= h2 then index : aux t1 t2 (index + 1)
                              else aux t1 t2 (index + 1)
 \end{code}
-The result |[0,1,4]| means that \aspas{|P1| and |P2| crosses}. We now have automate this (pretty) print. We only need to ignore the lantern index (4), convert the indexes to the respective adventurers and define a print function for them.
+The result |[0,1,4]| means that \aspas{|P1| and |P2| crosses}. We now have to automate this (pretty) print. We only need to ignore the lantern index (4), convert the indexes to the respective adventurers and define a print function for them.
 \begin{code}
 printTrace :: ([Bool], [Bool]) -> String
 printTrace = prettyLog . (map index2Adv) . init . indexesWithDifferentValues
@@ -452,14 +452,14 @@ optimalTrace =
 \end{verbatim}
 \section{Comparative Analysis and Final Comments}
 
-First, let's talk in terms of scalability. It's easy to see (for the \textsc{Haskell} approach), by running the |exec| function for a very large |n|, that the program slows down! In fact, the runtime is exponential, which one would expect given that it's a brute force implementation. However, UPPAAL model checking engine allows efficient and fast timed automata model exploration. So, for expensive executions, UPPAAL may be a better option. Also, in terms of systems security, modelling in UPPAAL can be easier because of invariants that can be easily defined. The \textsc{Haskell} approach requires the designer to correctly implement the functions to correctly model the problem, fulfilling pre and post conditions and system invariants. Syntax correctness is not enough. Therefore, it is more susceptible to errors.
+Let's begin to analyze in terms of scalability. It's easy to see (for the \textsc{Haskell} approach), by running the |exec| function for a very large |n|, that the program slows down! In fact, the runtime is exponential, which one would expect given that it's a brute force implementation. However, UPPAAL model checking engine allows efficient and fast timed automata model exploration. So, for expensive executions, UPPAAL may be a better option. Also, in terms of systems security, modelling in UPPAAL can be easier because of invariants that can be easily defined. The \textsc{Haskell} approach requires the designer to correctly implement the functions to correctly model the problem, fulfilling pre and post conditions and system invariants. Syntax correctness is not enough. Therefore, it is more susceptible to errors.
 
 Even so, UPPAAL have some considerable disadvantages. One of the main disadvantages in UPPAAL is that clocks are logical concepts. The simulator does not allow seeing clock values (only the satisfaction can be checked via constraints). This works if we just want to answer the problem's questions. However, it would be nice to get the time associated to some particular execution (as \textsc{Haskell} does), e.g., the optimal trace duration. In every state of every possible sequence of moves, monad gives us the \aspas{clock value}, i.e. the duration of the moves so far. Also, concerning the space of solutions and taking into account the goal of reaching the final state with the aforementioned criteria, in the \textsc{Haskell} approach, we saw that there were two optimal solutions. However, reachability queries in UPPAAL doesn’t explore the whole state space and stops   
 when the given expression becomes true. UPPAAL does not give us all the solutions --- only one, if possible. \textsc{Haskell} gives us the entire space of solutions!
 
 On the other hand, the fact that UPPAAL produces counterexamples allows us to automatically get the trace (or path). After we verify some property (e.g. that is possible for all adventurers to be on the other side in |<= 17| minutes and not exceeding 5 moves), one could negate the property in order to obtain the trace log for that property. In \textsc{Haskell}, there was a need to incorporate the path in the monad definition. Of course, for someone who is modelling with monads in \textsc{Haskell}, that should not be a problem at all.
 
-
-
+Considering all this, there's no way to say which approach is better. It all depends on the designer.
+A proof of this is that Melânia prefers Uppaal and Paulo prefers \textsc{Haskell}.
 
 \end{document}
