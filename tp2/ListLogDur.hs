@@ -6,9 +6,6 @@ import ListDur
 
 data ListLogDur a = LSD [Duration (String, a)] deriving Show
 
-remLSD :: ListLogDur a -> [Duration (String, a)]
-remLSD (LSD x) = x
-
 instance Functor ListLogDur where
     fmap f = LSD . (map (fmap (id >< f))) . remLSD
 
@@ -28,6 +25,9 @@ instance Monad ListLogDur where
         g (Duration (d, (s, a))) k =
           map (\(Duration (d', (s', a))) -> (Duration (d + d', (s ++ s', a)))) (remLSD (k a))
 
+remLSD :: ListLogDur a -> [Duration (String, a)]
+remLSD (LSD x) = x
+
 {-instance Monad ListLogDur where
     return = pure
     l >>= k = let k' = LD . remLSD . k
@@ -35,23 +35,3 @@ instance Monad ListLogDur where
                   LSD $ remLD (l' >>= (auxLSDMonad k')) where
                     auxLSDMonad :: (x -> ListDur (String, y)) -> ((String, x) -> ListDur (String, y))
                     auxLSDMonad = undefined -}
-
-
-{-
-k : X -> ListLogDur Y
------------------------------------------
-k* : ListLogDur X -> ListLogDur Y    (definir)
-
-
-
-k : X -> ListDur Y
----------------------------
-k* : ListDur X -> ListDur Y   (já está definida)
-
-
-k : X -> ListDur(S x Y)   LD [Duration (String,a)]
--------------------------
-h : S x X -> ListDur(S x Y)
--------------------------------------
-h* : ListDur(S x X) -> ListDur(S x Y)
--}

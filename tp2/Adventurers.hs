@@ -3,7 +3,6 @@ module Adventurers where
 
 import Cp
 import DurationMonad
-import ListDur
 import ListLogDur
 
 -- The list of adventurers
@@ -158,9 +157,6 @@ in < 17 min ? --}
 l17 :: Bool
 l17 = p2 (lX 17)
 
--- traces of all possibles plays for the problem:
--- is it possible for all adventurers to be on the other side
--- in <=17 min and not exceeding 5 moves ?
 optimalTrace =
         putStrLn . t . map remDur . remLSD . p2 $ execPred (== gEnd) gInit where
         t = prt . (split (head . map p1) (map (p1.p2))) . pairFilter . split (minimum . map p1) id

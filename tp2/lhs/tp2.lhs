@@ -123,12 +123,14 @@
 %format (cataFTree (x)) = "\llparenthesis\, " x "\,\rrparenthesis"
 %format (anaLTree (x)) = "\mathopen{[\!(}" x "\mathclose{)\!]}"
 %format delta = "\Delta "
+%format eta = "\eta "
 \newlabel{eq:fokkinga}{{3.93}{110}{The mutual-recursion law}{section.3.17}{}}
 %format (plus (f)(g)) = "{" f "}\plus{" g "}"
 %format ++ = "\mathbin{+\!\!\!+}"
 %format Integer  = "\mathbb{Z}"
 \def\mcond#1#2#3{#1 \rightarrow #2\;,\;#3}
 %format (Cp.cond (p) (f) (g)) = "\mcond{" p "}{" f "}{" g "}"
+%format (kleisli (f)) = f"^\star"
 \def\plus{\mathbin{\dagger}}
 
 %---------------------------------------------------------------------------
@@ -147,7 +149,7 @@
 \maketitle
 
 \begin{abstract}
-ola
+This assignment aims to model and to analyze a system with a powerful weapon of functional programming --- monads! The system to model envolves 4 adventurers, one lantern and a bridge! This 4 adventurers need to cross the bridge, but, for safety reasons, only two people can cross at the same time and one of them needs to carry the lantern, also, each adventurer takes a different time than the others to cross the bridge. The first task of the assignment is to model this system using \textsc{Haskell} and to verify some claims made by the adventurers, namely, that they can be all on the other side in 17 minutes, and also to show that it is impossible for them all to be on the other side in less then 17 minutes. This system could be modeled using different approaches and modules, as it was done in classes via UPPAAL, so the second task of the assignment focuses on the comparison of both UPPAAL and \textsc{Haskell} approaches.
 \end{abstract}
 
 %if False
@@ -157,7 +159,6 @@ module TP2 where
 
 import Cp
 import DurationMonad
-import ListDur
 import ListLogDur
 \end{code}
 %endif
@@ -176,8 +177,41 @@ One companion disagrees and claims that it can be done in 17 minutes.
 Who is right? That's what we're going to find out.
 
 \section{Monadic Approach via \textsc{Haskell} for Modelling the Problem}
-\subsection{The monads used}
-\fbox{explain the monads here}
+The solution is to take advantage of the non-deterministic monad (monad List) to use brute force and calculate all possible moves until we reach the final state. To deal with the time adventurers need to cross, we'll use the duration monad (already implemented by prof. Renato Neves) whose implementation add the time each adventurer takes in a given move. This duration monad will be \aspas{encapsulated} in our final monad |ListLogDur|. This one will offer, for a certain state, a list of following states with the respective duration needed to get it and will also offer the path traveled at the moment. This path will be in a |string| and, as we'll see, it is going to be very elegant. For now, let's analyze the construction of our monad!
+\subsection{The \textit{ListLogDur} monad}
+As said before, we'll use our monad to have a list of states with the respective duration needed to get it and the path traveled at the moment. However, we want our monad to be parametric. So,
+\begin{spec}
+data ListLogDur a = LSD [Duration (String, a)] deriving Show
+\end{spec}
+We now have our set-constructor, so we need to define the $\eta$ function and the $(-)^\star$ operator. To define the $\eta$ function, when need to understand what means a effect-free representation in this monad --- it means that we have no duration and an empty path traveled. So,
+\begin{spec}
+eta : X -> ListLogDur X
+eta x = LSD [Duration (0,([],x))]
+\end{spec}
+For the $(-)^\star$ operator, assuming a function |f : X -> ListLogDur Y|, we'll have to define the function, |kleisli f : X -> ListLogDur Y|, which in \textsc{Haskell} corresponds to the |(>>=)| operation. This implementation follows along with the |instance Functor| and the |instance Applicative| (required by \textsc{Haskell} itself).
+\begin{spec}
+instance Functor ListLogDur where
+    fmap f = LSD . (map (fmap (id >< f))) . remLSD
+
+instance Applicative ListLogDur where
+    pure = LSD . pure . pure . (\x -> ([], x))
+    l1 <*> l2 = LSD $ do
+        x <- remLSD l1
+        y <- remLSD l2
+        g(x,y) where
+            g(Duration (d1,(s,f)),Duration (d2,(s',x))) = return (Duration (d1 + d2, (s++s', f x)))
+
+instance Monad ListLogDur where
+    return = pure
+    l >>= k = LSD $ do
+      x <- remLSD l
+      g x k where
+        g (Duration (d, (s, a))) k =
+          map (\(Duration (d', (s', a))) -> (Duration (d + d', (s ++ s', a)))) (remLSD (k a))
+
+remLSD :: ListLogDur a -> [Duration (String, a)]
+remLSD (LSD x) = x
+\end{spec}
 \subsection{Modelling the problem}
 Adventurers are represented by the following data type:
 \begin{code}
@@ -232,35 +266,25 @@ state2List s = [s (Left P1),
              s (Left P10),
              s (Right ())]
 \end{code}
-Changes the state of the game for a given object:
+Obviously, it is useful a function that changes the state of the game for a given object:
 \begin{code}
 changeState :: Object -> State -> State
 changeState a s = let v = s a in (\x -> if x == a then not v else s x)
 \end{code}
-Changes the state of the game of a list of Object 
+Even more useful is a function that changes the state of the game of a list of objects: 
 \begin{code}
 mChangeState :: [Object] -> State -> State
 mChangeState os s = foldr changeState s os
 \end{code}
-
-For a given state of the game, the function presents all the
-possible moves that the adventurers can make.
+With this, we are now ready to define all the valids plays the adventurers can make for a given state of the game, storing, obviously, the respective duration required and the move made. So, for a given |s :: State|, we'll compute the |allValidPlays :: ListLogDur State| $\sim$ |LSD [Duration (String, State)]|. For that, let's think:
+\begin{enumerate}
+\item We need to move adventurers --- but only adventurers who can pick up the lantern. So, for that given state, we first need to calculate the adventurers who are where the lantern is.
 \begin{code}
-allValidPlays :: State -> ListLogDur State
-allValidPlays s = LSD $ map Duration $ map (id >< (split (toTrace s) id) . (mCS s)) t where
-  t = (map (addLantern . addTime) . combinationsUpTo2 . advsWhereLanternIs) s
-  mCS = flip mChangeState
-  toTrace s s' = printTrace (state2List s, state2List s')
-
-addTime :: [Adventurer] -> (Int, [Adventurer])
-addTime = split (maximum . (map getTimeAdv)) id
-
-addLantern :: (Int, [Adventurer]) -> (Int, [Object])
-addLantern = id >< ((lantern :) . map Left)
-
 advsWhereLanternIs :: State -> [Adventurer]
 advsWhereLanternIs s = filter ((== s lantern) . s . Left) [P1, P2, P5, P10]
-
+\end{code}
+\item Now, since we got the adventurers who can cross, we need to group them into all possible combinations. As we know, a maximum of 2 adventurers can cross. This parametric function
+\begin{code}
 combinationsUpTo2 :: Eq a => [a] -> [[a]]
 combinationsUpTo2 = conc . (split f g) where
       f t = do {x <- t; return [x]}
@@ -268,12 +292,29 @@ combinationsUpTo2 = conc . (split f g) where
       remove x [] = []
       remove x (h:t) = if x==h then t else remove x t
 \end{code}
-\begin{verbatim}
- > combinationsUpTo2 [1,2,3]
- [[1], [2], [3], [1,2], [1,3], [2,3]]
-\end{verbatim}
+applied to the list of all possivle adventurers will return all possible groups in sublists.
+\item Now, we have to get the time both group need to cross --- we just need to map the function |getTimeAdv| and return the maximum value. We may also produce the pair with this result and the initial list of adventurers.
+\begin{code}
+addTime :: [Adventurer] -> (Int, [Adventurer])
+addTime = split (maximum . (map getTimeAdv)) id
+\end{code}
+\item We also need to add the lantern to the group that is going to cross --- they need the lantern to cross. This returns the list of objects that are going to cross and the time needed to do it.
+\begin{code}
+addLantern :: (Int, [Adventurer]) -> (Int, [Object])
+addLantern = id >< ((lantern :) . map Left)
+\end{code}
+\item Finally, we need to use the function |map mChangeState| to change the state of that list of lists of objects (which are our possible moves) and encapsulate it in the monad using the composition |LSD . map Duration|. Yes, we are missing something --- the path (or the trace)!!! For now, let's just appreciate the final function. The next subsection will explain how we get the path!
+\begin{code}
+allValidPlays :: State -> ListLogDur State
+allValidPlays s = LSD $ map Duration $ map (id >< (split (toTrace s) id) . (mCS s)) t where
+  t = (map (addLantern . addTime) . combinationsUpTo2 . advsWhereLanternIs) s
+  mCS = flip mChangeState
+  toTrace s s' = printTrace (state2List s, state2List s')
+\end{code}
 
-\subsubsection{The trace log}
+\end{enumerate}
+
+\subsection{The trace log}
 As we saw, our monad |ListLogDur| keeps the trace by calling the function |toTrace :: State -> State -> String|. But what does it do?
 
 First, we can see that, according to the representation of the state, adventurers can be represented by indexes. We take advantage of this to be able to present an elegant trace of the moves. For example, if the previous state is |[False, False, False, False, False]| and the current state is |[True, True, False, False, True]|, we know that |P1| and |P2| have crossed (because the first two and the last elements and diferent). So, we can simply compare element to element and, if they are different, we keep the index. In the previous example, it would return |[0,1,4]| --- index 4 represents the lantern, and because we assume that the movements are always valid, we can ignore that.
@@ -312,16 +353,22 @@ Finnaly, using the function |putStr|, we get a pretty nice log:
  > putStr $ printTrace t
  P1 and P2 crosses
 \end{verbatim}
-In the next subsection, we'll see the trace of the optimal play which shows how elegant the log is. 
+Back to function |allValidPlays|, we do, for a given state |s| and each following state |s'|,
+\begin{code}
+toTrace s s' = printTrace (state2List s, state2List s')
+\end{code}
+So, this representation is done right in the calculation of the possible moves. At the end, we just need to get that already prepared trace. In the next subsection, we'll see the trace of the optimal play which shows how elegant the log is. 
 \subsection{Solving the problem}
-For a given number n and initial state, the function calculates
-all possible n-sequences of moves that the adventures can make
+First, we defined a function that, for a given number |n| and an initial state, calculates
+all possible |n|-sequences of moves that the adventures can make. For that, we took advantage of the |do| notation --- let the monad do the work for us!
 \begin{code}
 exec :: Int -> State -> ListLogDur State
 exec 0 s = allValidPlays s
 exec n s = do ps <- exec (n-1) s
               allValidPlays ps
-
+\end{code}
+The previous functions is nice, but not so much --- we don't know how many sequences are needed to reach the end state. It would be much better if we could execute all possible sequences of moves that the adventures can make for a given state untill it fulfills a predicate over a state (passed as a parameter). Additionally, it also returns the number of moves needed to fulfill that predicate.
+\begin{code}
 execPred :: (State -> Bool) -> State -> (Int, ListLogDur State)
 execPred p s = aux p s 0 where
                aux p s it = let st = exec it s 
@@ -330,7 +377,9 @@ execPred p s = aux p s 0 where
                                 else aux p s (it+1) where
                                   remDur (Duration a) = a
                                   pred (_, (_,s)) = p s
-
+\end{code}
+We may use this version to solve the problem and see who's right. For that, 2 more functions were defined to see if it is possible for all adventurers to be on the other side in |<= n| (and |< n|) minutes and how many moves are needed for that.
+\begin{code}
 leqX :: Int -> (Int, Bool)
 leqX n = if res then (it,res)
                 else (0,res) where
@@ -347,22 +396,31 @@ lX n = if res then (it,res)
                 p (d,(_,_)) = d < n
                 remDur (Duration a) = a
 \end{code}
-
-\textbf{Question}: Is it possible for all adventurers to be on the other side
-in |<= 17| minutes and not exceeding 5 moves?
+So let's see who was right!
+\begin{itemize}
+\item \textit{Is it possible for all adventurers to be on the other side
+in |<= 17| minutes and not exceeding 5 moves?}
 \begin{code}
 leq17 :: Bool
 leq17 = p2 (leqX 17) && p1 (leqX 17) <= 5
 \end{code}
-
-\textbf{Question}: Is it possible for all adventurers to be on the other side
-in |< 17| minutes?
+\begin{verbatim}
+ > leq17
+ True
+\end{verbatim}
+\item \textit{Is it possible for all adventurers to be on the other side
+in |< 17| minutes?}
 \begin{code}
 l17 :: Bool
 l17 = p2 (lX 17)
 \end{code}
+\begin{verbatim}
+ > l17
+ False
+\end{verbatim}
+\end{itemize}
 As we saw, it is possible for all adventurers to be on the other side
-in |<= 17| minutes and not exceeding 5 moves (actually we exactly 5 moves). We also prooved that it isn't possible for all adventurers to be on the other side in |< 17| minutes. So, one could get that information by executing the following function \textit{optimalTrace}.
+in |<= 17| minutes and not exceeding 5 moves. Actually, since |l17| returns |False|, |17| is the the optimal time for solving the problem (with exactly 5 moves). One could also get that information by executing the following function \textit{optimalTrace}, which shows how beautiful our trace log is!
 \begin{code}
 optimalTrace :: IO ()
 optimalTrace =
@@ -374,7 +432,6 @@ optimalTrace =
         p' = conc . split (concat . map ((++("\nOR\n\n"))) . init) last
         prt (d, l) = (p l) ++ "\nin " ++ (show d) ++ " minutes."
 \end{code}
-Result:
 \begin{verbatim}
  > optimalTrace 
  P1 and P2 crosses
@@ -394,5 +451,15 @@ Result:
  in 17 minutes.
 \end{verbatim}
 \section{Comparative Analysis and Final Comments}
+
+First, let's talk in terms of scalability. It's easy to see (for the \textsc{Haskell} approach), by running the |exec| function for a very large |n|, that the program slows down! In fact, the runtime is exponential, which one would expect given that it's a brute force implementation. However, UPPAAL model checking engine allows efficient and fast timed automata model exploration. So, for expensive executions, UPPAAL may be a better option. Also, in terms of systems security, modelling in UPPAAL can be easier because of invariants that can be easily defined. The \textsc{Haskell} approach requires the designer to correctly implement the functions to correctly model the problem, fulfilling pre and post conditions and system invariants. Syntax correctness is not enough. Therefore, it is more susceptible to errors.
+
+Even so, UPPAAL have some considerable disadvantages. One of the main disadvantages in UPPAAL is that clocks are logical concepts. The simulator does not allow seeing clock values (only the satisfaction can be checked via constraints). This works if we just want to answer the problem's questions. However, it would be nice to get the time associated to some particular execution (as \textsc{Haskell} does), e.g., the optimal trace duration. In every state of every possible sequence of moves, monad gives us the \aspas{clock value}, i.e. the duration of the moves so far. Also, concerning the space of solutions and taking into account the goal of reaching the final state with the aforementioned criteria, in the \textsc{Haskell} approach, we saw that there were two optimal solutions. However, reachability queries in UPPAAL doesn’t explore the whole state space and stops   
+when the given expression becomes true. UPPAAL does not give us all the solutions --- only one, if possible. \textsc{Haskell} gives us the entire space of solutions!
+
+On the other hand, the fact that UPPAAL produces counterexamples allows us to automatically get the trace (or path). After we verify some property (e.g. that is possible for all adventurers to be on the other side in |<= 17| minutes and not exceeding 5 moves), one could negate the property in order to obtain the trace log for that property. In \textsc{Haskell}, there was a need to incorporate the path in the monad definition. Of course, for someone who is modelling with monads in \textsc{Haskell}, that should not be a problem at all.
+
+
+
 
 \end{document}

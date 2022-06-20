@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2021.4.6)  17 JUN 2022 22:20
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2021.4.6)  20 JUN 2022 16:05
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -666,15 +666,13 @@ File: omspcr.fd
 )
 LaTeX Font Info:    Font shape `OMS/pcr/m/n' in size <12> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 301.
-\openout5 = `tp2.ptb'.
-
-\openout5 = `tp2.ptb'.
-
-\openout5 = `tp2.ptb'.
-
  [1
 
 {/usr/local/texlive/2021/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+\openout5 = `tp2.ptb'.
+
+\openout5 = `tp2.ptb'.
+
 \openout5 = `tp2.ptb'.
 
 \openout5 = `tp2.ptb'.
@@ -688,7 +686,17 @@ LaTeX Font Info:    Font shape `OMS/pcr/m/n' in size <12> not available
 
 \openout5 = `tp2.ptb'.
 
+\openout5 = `tp2.ptb'.
+
+\openout5 = `tp2.ptb'.
+
  [3]
+\openout5 = `tp2.ptb'.
+
+\openout5 = `tp2.ptb'.
+
+\openout5 = `tp2.ptb'.
+
 \openout5 = `tp2.ptb'.
 
 \openout5 = `tp2.ptb'.
@@ -698,37 +706,58 @@ LaTeX Font Info:    Font shape `OMS/pcr/m/n' in size <12> not available
 
 \openout5 = `tp2.ptb'.
 
+\openout5 = `tp2.ptb'.
+
  [5]
-(./tp2.aux)
+\openout5 = `tp2.ptb'.
+
+\openout5 = `tp2.ptb'.
+
+LaTeX Font Info:    Trying to load font information for TS1+ppl on input line 7
+65.
+
+(/usr/local/texlive/2021/texmf-dist/tex/latex/psnfss/ts1ppl.fd
+File: ts1ppl.fd 2001/06/04 font definitions for TS1/ppl.
+)
+\openout5 = `tp2.ptb'.
+
+\openout5 = `tp2.ptb'.
+
+\openout5 = `tp2.ptb'.
+
+ [6] [7]
+[8] (./tp2.aux)
 Package rerunfilecheck Info: File `tp2.out' has not changed.
-(rerunfilecheck)             Checksum: 0CEC5F9FC8B299A131D43A3A9539587A;1355.
+(rerunfilecheck)             Checksum: 1C21615269B941ADFDAA646982A257B6;1370.
  ) 
 Here is how much of TeX's memory you used:
- 16027 strings out of 478994
- 235178 string characters out of 5858185
- 616151 words of memory out of 5000000
- 33177 multiletter control sequences out of 15000+600000
- 428839 words of font info for 107 fonts, out of 8000000 for 9000
+ 16076 strings out of 478994
+ 235779 string characters out of 5858185
+ 615148 words of memory out of 5000000
+ 33209 multiletter control sequences out of 15000+600000
+ 431771 words of font info for 113 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 72i,7n,77p,3286b,361s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 72i,7n,77p,3286b,450s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2021/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/t
 exlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/te
 xlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/tex
-live/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texli
-ve/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/
-2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/local/texlive/2
-021/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/20
-21/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2021
-/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2021/
-texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/local/texlive/2
-021/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive/2021/texm
-f-dist/fonts/type1/urw/palatino/uplb8a.pfb></usr/local/texlive/2021/texmf-dist/
-fonts/type1/urw/palatino/uplr8a.pfb></usr/local/texlive/2021/texmf-dist/fonts/t
-ype1/urw/palatino/uplri8a.pfb>
-Output written on tp2.pdf (5 pages, 166170 bytes).
+live/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texli
+ve/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive
+/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/20
+21/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/local/texlive/202
+1/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2021
+/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2021/t
+exmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2021/te
+xmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/local/texlive/202
+1/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive/2021/texmf-
+dist/fonts/type1/urw/palatino/uplb8a.pfb></usr/local/texlive/2021/texmf-dist/fo
+nts/type1/urw/palatino/uplbi8a.pfb></usr/local/texlive/2021/texmf-dist/fonts/ty
+pe1/urw/palatino/uplr8a.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/urw
+/palatino/uplri8a.pfb>
+Output written on tp2.pdf (8 pages, 196737 bytes).
 PDF statistics:
- 114 PDF objects out of 1000 (max. 8388607)
- 93 compressed objects within 1 object stream
- 13 named destinations out of 1000 (max. 500000)
+ 143 PDF objects out of 1000 (max. 8388607)
+ 116 compressed objects within 2 object streams
+ 21 named destinations out of 1000 (max. 500000)
  57 words of extra memory for PDF output out of 10000 (max. 10000000)
 
