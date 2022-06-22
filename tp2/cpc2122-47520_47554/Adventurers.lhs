@@ -160,6 +160,7 @@ module Adventurers where
 import Cp
 import DurationMonad
 import ListLogDur
+import ListDur
 \end{code}
 %endif
 
